@@ -1,0 +1,103 @@
+# Project .gitignore for ai_training_platform
+
+## Byte-compiled / caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+## Environments
+.env
+.venv/
+venv/
+env/
+pip-wheel-metadata/
+*.egg-info/
+
+## Python testing / coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+## Type checking / linters
+.mypy_cache/
+.ruff_cache/
+
+## IDEs
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+## Jupyter
+.ipynb_checkpoints/
+
+## Logs and temp
+logs/
+*.log
+nohup.out
+tmp/
+temp/
+
+## Build / dist
+build/
+dist/
+*.egg
+*.egg-info/
+
+## Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnp/
+
+## Docker
+docker-compose.override.yml
+docker-compose.prod.yml
+*.tar
+
+## Data, artifacts and model weights (large files)
+datasets/
+data/
+runs/
+weights/
+models/
+artifacts/
+outputs/
+export/tensorrt/
+
+# common model formats
+*.pt
+*.pth
+*.onnx
+*.engine
+*.trt
+*.pb
+*.tar.gz
+
+## Eval / evidence / LLM outputs
+eval/
+evidence/
+llm/
+analysis_report.md
+next_experiments.json
+evidence_pack.json
+eval_report.json
+
+## Object storage / caches
+.minio/
+.s3/
+*.sqlite3
+*.db
+
+## Secrets and credentials
+secrets/
+credentials.json
+credential.json
+id_rsa
+id_rsa.pub
+
+## Misc
+*.bak
+*.tmp
+*.swp
