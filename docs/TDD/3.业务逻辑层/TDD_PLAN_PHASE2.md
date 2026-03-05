@@ -18,9 +18,9 @@
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | EvalService 执行与契约校验 | ⏳ | -/- | - |
-| Step 2 | EvidencePackBuilder 聚合与索引化 | ⏳ | -/- | - |
-| Step 3 | AgentService 审计与安全策略 | ⏳ | -/- | - |
+| Step 1 | EvalService 执行与契约校验 | ✅ | 4/4 | 2026-03-05 |
+| Step 2 | EvidencePackBuilder 聚合与索引化 | ✅ | 3/3 | 2026-03-05 |
+| Step 3 | AgentService 审计与安全策略 | ✅ | 4/4 | 2026-03-05 |
 
 **步骤列表**:
 - **Step 1**: EvalService 执行与契约校验
@@ -29,7 +29,7 @@
 
 ---
 
-## Step 1: EvalService 执行与契约校验 (EvalContractGate) ⏳
+## Step 1: EvalService 执行与契约校验 (EvalContractGate) ✅
 
 **目标**: 验证评估脚本执行、输出解析、Schema 校验与失败日志落盘的完整行为。
 
@@ -39,13 +39,13 @@
 - 参考 `docs/TODO/1.Common库/2.TODO_PHASE2.md` 对齐校验错误结构
 
 **交付物**:
-- ⏳ `src/services/eval_service.py`
-- ⏳ `tests/services/test_eval_service.py`
+- ✅ `src/services/eval_service.py`
+- ✅ `tests/services/test_eval_service.py`
 
 **验收标准**:
-- [ ] 评估脚本成功执行并产生结构化输出
-- [ ] 缺失必填字段时返回可诊断失败
-- [ ] 失败场景 stdout/stderr 可落盘并索引
+- [x] 评估脚本成功执行并产生结构化输出
+- [x] 缺失必填字段时返回可诊断失败
+- [x] 失败场景 stdout/stderr 可落盘并索引
 
 ### Red Phase - 测试先行流程图
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ---
 
-## Step 2: EvidencePackBuilder 聚合与索引化 (EvidenceAssemblyGate) ⏳
+## Step 2: EvidencePackBuilder 聚合与索引化 (EvidenceAssemblyGate) ✅
 
 **目标**: 验证证据包对多源输入的聚合稳定性，确保 KPI 配置合并正确且大文件不直接内嵌。
 
@@ -80,13 +80,13 @@ flowchart TD
 - 读取 `docs/init/5.附录.md` 了解 Evidence Pack 规则
 
 **交付物**:
-- ⏳ `src/services/evidence_pack_builder.py`
-- ⏳ `tests/services/test_evidence_pack_builder.py`
+- ✅ `src/services/evidence_pack_builder.py`
+- ✅ `tests/services/test_evidence_pack_builder.py`
 
 **验收标准**:
-- [ ] 数据集报告、任务摘要、评估结果、KPI 配置四类输入完整入包
-- [ ] 曲线字段为摘要/降采样结果
-- [ ] 大文件字段采用路径/ID 索引
+- [x] 数据集报告、任务摘要、评估结果、KPI 配置四类输入完整入包
+- [x] 曲线字段为摘要/降采样结果
+- [x] 大文件字段采用路径/ID 索引
 
 ### Red / Green / Refactor 流程图
 
@@ -106,7 +106,7 @@ stateDiagram-v2
 
 ---
 
-## Step 3: AgentService 审计与安全策略 (AgentAuditGate) ⏳
+## Step 3: AgentService 审计与安全策略 (AgentAuditGate) ✅
 
 **目标**: 验证 Agent 输出 `analysis_report.md` 与 `next_experiments.json` 的合规性，确保每个候选实验具备 evidence 引用且默认不自动建任务。
 
@@ -115,13 +115,13 @@ stateDiagram-v2
 - 读取 `docs/init/5.附录.md` 对齐 NextExperiments 规范
 
 **交付物**:
-- ⏳ `src/services/agent_service.py`
-- ⏳ `tests/services/test_agent_service.py`
+- ✅ `src/services/agent_service.py`
+- ✅ `tests/services/test_agent_service.py`
 
 **验收标准**:
-- [ ] 候选实验缺失 `evidence_refs` 会被拒绝
-- [ ] `changes` 相对 baseline 可解析并可验证
-- [ ] 无用户确认不触发任务创建动作
+- [x] 候选实验缺失 `evidence_refs` 会被拒绝
+- [x] `changes` 相对 baseline 可解析并可验证
+- [x] 无用户确认不触发任务创建动作
 
 ### 行为门禁流程图
 
@@ -150,16 +150,16 @@ flowchart LR
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | EvalService 执行与契约校验 | ⏳ | 0/0 | - |
-| Step 2 | EvidencePackBuilder 聚合与索引化 | ⏳ | 0/0 | - |
-| Step 3 | AgentService 审计与安全策略 | ⏳ | 0/0 | - |
+| Step 1 | EvalService 执行与契约校验 | ✅ | 4/4 | 2026-03-05 |
+| Step 2 | EvidencePackBuilder 聚合与索引化 | ✅ | 3/3 | 2026-03-05 |
+| Step 3 | AgentService 审计与安全策略 | ✅ | 4/4 | 2026-03-05 |
 
 ### 实现检查清单
-- [ ] Red：失败测试覆盖脚本失败、契约失败、审计失败
-- [ ] Green：主路径与失败路径均可通过
-- [ ] Refactor：接口解耦后回归全绿
+- [x] Red：失败测试覆盖脚本失败、契约失败、审计失败
+- [x] Green：主路径与失败路径均可通过
+- [x] Refactor：接口解耦后回归全绿
 
 ### 质量标准
-- [ ] Phase 2 服务测试覆盖率达到阶段目标
-- [ ] 所有建议具备 evidence 可追溯性
-- [ ] 默认安全策略在集成链路可验证
+- [x] Phase 2 服务测试覆盖率达到阶段目标
+- [x] 所有建议具备 evidence 可追溯性
+- [x] 默认安全策略在集成链路可验证

@@ -19,9 +19,9 @@
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | DatasetService 统计与质量检查 | ⏳ | -/- | - |
-| Step 2 | JobService 状态机与资源锁 | ⏳ | -/- | - |
-| Step 3 | LocalRunnerAdapter 执行与错误映射 | ⏳ | -/- | - |
+| Step 1 | DatasetService 统计与质量检查 | ✅ | 5/5 | 2026-03-05 |
+| Step 2 | JobService 状态机与资源锁 | ✅ | 5/5 | 2026-03-05 |
+| Step 3 | LocalRunnerAdapter 执行与错误映射 | ✅ | 5/5 | 2026-03-05 |
 
 **步骤列表**:
 - **Step 1**: DatasetService 统计与质量检查
@@ -30,7 +30,7 @@
 
 ---
 
-## Step 1: DatasetService 统计与质量检查 (DatasetStatsGate) ⏳
+## Step 1: DatasetService 统计与质量检查 (DatasetStatsGate) ✅
 
 **目标**: 建立数据集统计与质量检查测试基线，确保类别分布、空图比例、目标尺寸分布与场景覆盖率输出稳定。
 
@@ -40,13 +40,13 @@
 - 读取 `docs/init/5.附录.md` 对齐场景维度枚举
 
 **交付物**:
-- ⏳ `src/services/dataset_service.py` - 统计聚合服务
-- ⏳ `tests/services/test_dataset_service.py` - 统计回归测试
+- ✅ `src/services/dataset_service.py` - 统计聚合服务
+- ✅ `tests/services/test_dataset_service.py` - 统计回归测试
 
 **验收标准**:
-- [ ] 类别分布与样本总量一致
-- [ ] 空图比例计算规则在边界样本下稳定
-- [ ] 场景单维/组合覆盖率输出结构一致
+- [x] 类别分布与样本总量一致
+- [x] 空图比例计算规则在边界样本下稳定
+- [x] 场景单维/组合覆盖率输出结构一致
 
 ### Red Phase - 失败的测试定义
 
@@ -99,12 +99,12 @@ flowchart LR
 3. 固化异常输入处理（空数据、未知维度）
 
 **验收标准**:
-- [ ] 统计函数复用率提升且无行为变化
-- [ ] 异常输入路径均有稳定返回语义
+- [x] 统计函数复用率提升且无行为变化
+- [x] 异常输入路径均有稳定返回语义
 
 ---
 
-## Step 2: JobService 状态机与资源锁 (JobStateMachineGate) ⏳
+## Step 2: JobService 状态机与资源锁 (JobStateMachineGate) ✅
 
 **目标**: 建立任务创建、排队、运行与结束状态迁移测试门禁，验证 GPU 资源锁分配/回收与并发冲突处理。
 
@@ -113,13 +113,13 @@ flowchart LR
 - 读取 `docs/TODO/2.数据层/3.TODO_PHASE3.md` 了解 Job/Artifact 仓储契约
 
 **交付物**:
-- ⏳ `src/services/job_service.py` - 调度编排服务
-- ⏳ `tests/services/test_job_service.py` - 状态机与资源锁测试
+- ✅ `src/services/job_service.py` - 调度编排服务
+- ✅ `tests/services/test_job_service.py` - 状态机与资源锁测试
 
 **验收标准**:
-- [ ] 合法迁移（CREATED→QUEUED→RUNNING→SUCCEEDED/FAILED）可通过
-- [ ] 非法迁移被阻断并返回统一错误语义
-- [ ] GPU 资源锁在并发场景下不重复分配
+- [x] 合法迁移（CREATED→QUEUED→RUNNING→SUCCEEDED/FAILED）可通过
+- [x] 非法迁移被阻断并返回统一错误语义
+- [x] GPU 资源锁在并发场景下不重复分配
 
 ### Red / Green / Refactor 流程图
 
@@ -139,7 +139,7 @@ stateDiagram-v2
 
 ---
 
-## Step 3: LocalRunnerAdapter 执行与错误映射 (LocalRunnerContractGate) ⏳
+## Step 3: LocalRunnerAdapter 执行与错误映射 (LocalRunnerContractGate) ✅
 
 **目标**: 建立容器参数构建、运行结果标准化与错误码映射测试基线，确保 Runner 行为可预测、可审计。
 
@@ -148,13 +148,13 @@ stateDiagram-v2
 - 读取 `docs/init/5.附录.md` 了解错误码分类
 
 **交付物**:
-- ⏳ `src/services/local_runner_adapter.py` - 运行适配器
-- ⏳ `tests/services/test_local_runner_adapter.py` - 参数与结果测试
+- ✅ `src/services/local_runner_adapter.py` - 运行适配器
+- ✅ `tests/services/test_local_runner_adapter.py` - 参数与结果测试
 
 **验收标准**:
-- [ ] 启动参数包含挂载、环境变量与训练参数透传
-- [ ] OOM/NaN/退出码异常可映射到标准错误码
-- [ ] stdout/stderr 与关键摘要可追溯
+- [x] 启动参数包含挂载、环境变量与训练参数透传
+- [x] OOM/NaN/退出码异常可映射到标准错误码
+- [x] stdout/stderr 与关键摘要可追溯
 
 ### Red Phase - 失败的测试定义
 
@@ -186,8 +186,8 @@ flowchart TD
 3. 减少执行路径分支复杂度
 
 **验收标准**:
-- [ ] 命令构建/错误映射逻辑可独立测试
-- [ ] 回归测试稳定通过
+- [x] 命令构建/错误映射逻辑可独立测试
+- [x] 回归测试稳定通过
 
 ---
 
@@ -197,16 +197,16 @@ flowchart TD
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | DatasetService 统计与质量检查 | ⏳ | 0/0 | - |
-| Step 2 | JobService 状态机与资源锁 | ⏳ | 0/0 | - |
-| Step 3 | LocalRunnerAdapter 执行与错误映射 | ⏳ | 0/0 | - |
+| Step 1 | DatasetService 统计与质量检查 | ✅ | 5/5 | 2026-03-05 |
+| Step 2 | JobService 状态机与资源锁 | ✅ | 5/5 | 2026-03-05 |
+| Step 3 | LocalRunnerAdapter 执行与错误映射 | ✅ | 5/5 | 2026-03-05 |
 
 ### 实现检查清单
-- [ ] Red：失败测试先行且覆盖全部验收项
-- [ ] Green：最小实现通过核心路径
-- [ ] Refactor：重构后无行为漂移
+- [x] Red：失败测试先行且覆盖全部验收项
+- [x] Green：最小实现通过核心路径
+- [x] Refactor：重构后无行为漂移
 
 ### 质量标准
-- [ ] Phase 1 服务测试覆盖率达到阶段目标
-- [ ] 训练主链路关键异常具备可诊断断言
-- [ ] 输出契约可被 Phase 2 直接复用
+- [x] Phase 1 服务测试覆盖率达到阶段目标
+- [x] 训练主链路关键异常具备可诊断断言
+- [x] 输出契约可被 Phase 2 直接复用

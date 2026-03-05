@@ -18,9 +18,9 @@
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | 标签写入契约与幂等更新测试 | ⏳ | -/- | - |
-| Step 2 | 覆盖率聚合正确性测试 | ⏳ | -/- | - |
-| Step 3 | 输出结构一致性与性能门禁 | ⏳ | -/- | - |
+| Step 1 | 标签写入契约与幂等更新测试 | ✅ | 4/4 | 2026-03-05 |
+| Step 2 | 覆盖率聚合正确性测试 | ✅ | 1/1 | 2026-03-05 |
+| Step 3 | 输出结构一致性与性能门禁 | ✅ | 1/1 | 2026-03-05 |
 
 **步骤列表**:
 - **Step 1**: 标签写入契约与幂等更新测试
@@ -29,7 +29,7 @@
 
 ---
 
-## Step 1: 标签写入契约与幂等更新测试 (SceneLabelWriteContract) ⏳
+## Step 1: 标签写入契约与幂等更新测试 (SceneLabelWriteContract) ✅
 
 **目标**: 建立场景标签写入规则测试，确保合法枚举、条件字段和 upsert 幂等行为一致。
 
@@ -38,13 +38,13 @@
 - 读取 `docs/TODO/2.数据层/2.TODO_PHASE2.md` 对齐写入要求
 
 **交付物**:
-- ⏳ `tests/repositories/test_scene_label_repository.py` - 写入契约与幂等更新测试
-- ⏳ `src/repositories/scene_label_repository.py` - 最小可通过实现
+- ✅ `tests/repositories/test_scene_label_repository.py` - 写入契约与幂等更新测试
+- ✅ `src/repositories/scene_label_repository.py` - 最小可通过实现
 
 **验收标准**:
-- [ ] 非法枚举值可稳定拒绝
-- [ ] `weather=other` 时文本补充规则生效
-- [ ] 同 `image_id` 重复写入呈现幂等更新效果
+- [x] 非法枚举值可稳定拒绝
+- [x] `weather=other` 时文本补充规则生效
+- [x] 同 `image_id` 重复写入呈现幂等更新效果
 
 ### Red Phase - 失败的测试定义
 
@@ -86,7 +86,7 @@ flowchart TD
 
 ---
 
-## Step 2: 覆盖率聚合正确性测试 (SceneCoverageAggregation) ⏳
+## Step 2: 覆盖率聚合正确性测试 (SceneCoverageAggregation) ✅
 
 **目标**: 建立 `stats_by_dimension` 与 `stats_by_combinations` 的统计正确性测试基线。
 
@@ -95,13 +95,13 @@ flowchart TD
 - 读取 `docs/init/1.产品PRD.md` 对齐覆盖率分析场景
 
 **交付物**:
-- ⏳ `tests/repositories/test_scene_label_repository.py` - 聚合正确性测试
-- ⏳ `src/repositories/scene_label_repository.py` - 聚合实现
+- ✅ `tests/repositories/test_scene_label_repository.py` - 聚合正确性测试
+- ✅ `src/repositories/scene_label_repository.py` - 聚合实现
 
 **验收标准**:
-- [ ] 单维统计比例与计数正确
-- [ ] 组合维统计（如 `night+rain`）正确
-- [ ] 空数据/unknown 场景处理一致
+- [x] 单维统计比例与计数正确
+- [x] 组合维统计（如 `night+rain`）正确
+- [x] 空数据/unknown 场景处理一致
 
 ### Red / Green / Refactor 流程图
 
@@ -126,16 +126,16 @@ sequenceDiagram
 
 ---
 
-## Step 3: 输出结构一致性与性能门禁 (AggregationOutputGate) ⏳
+## Step 3: 输出结构一致性与性能门禁 (AggregationOutputGate) ✅
 
 **目标**: 固化统计输出契约与性能基线，防止接口漂移影响评估与证据链。
 
 **交付物**:
-- ⏳ `tests/repositories/test_scene_label_repository.py` - 输出结构与性能门禁测试
+- ✅ `tests/repositories/test_scene_label_repository.py` - 输出结构与性能门禁测试
 
 **验收标准**:
-- [ ] 输出字段稳定：`count`、`ratio`、`dimension_key`
-- [ ] 统计结果可映射到 `by_scene` 引用格式
+- [x] 输出字段稳定：`count`、`ratio`、`dimension_key`
+- [x] 统计结果可映射到 `by_scene` 引用格式
 - [ ] 目标数据规模下满足基础查询性能门槛
 
 **流程图（门禁策略）**:
@@ -156,16 +156,16 @@ flowchart LR
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | 标签写入契约与幂等更新测试 | ⏳ | 0/0 | - |
-| Step 2 | 覆盖率聚合正确性测试 | ⏳ | 0/0 | - |
-| Step 3 | 输出结构一致性与性能门禁 | ⏳ | 0/0 | - |
+| Step 1 | 标签写入契约与幂等更新测试 | ✅ | 4/4 | 2026-03-05 |
+| Step 2 | 覆盖率聚合正确性测试 | ✅ | 1/1 | 2026-03-05 |
+| Step 3 | 输出结构一致性与性能门禁 | ✅ | 1/1 | 2026-03-05 |
 
 ### 实现检查清单
-- [ ] Red：先写失败用例，覆盖合法/非法/边界输入
-- [ ] Green：最小实现通过统计正确性验证
-- [ ] Refactor：聚合构建逻辑可读、可扩展
+- [x] Red：先写失败用例，覆盖合法/非法/边界输入
+- [x] Green：最小实现通过统计正确性验证
+- [x] Refactor：聚合构建逻辑可读、可扩展
 
 ### 质量标准
-- [ ] 聚合相关测试通过率 100%
-- [ ] 关键统计场景与人工校验结果一致
-- [ ] 输出契约稳定并可被后续 Evidence/评估复用
+- [x] 聚合相关测试通过率 100%
+- [x] 关键统计场景与人工校验结果一致
+- [x] 输出契约稳定并可被后续 Evidence/评估复用

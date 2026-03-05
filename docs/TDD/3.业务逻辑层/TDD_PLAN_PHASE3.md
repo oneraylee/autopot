@@ -19,9 +19,9 @@
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | ExportService 导出编排与结果采集 | ⏳ | -/- | - |
-| Step 2 | 部署基准与 KPI 联动验证 | ⏳ | -/- | - |
-| Step 3 | 服务级集成链路验收门禁 | ⏳ | -/- | - |
+| Step 1 | ExportService 导出编排与结果采集 | ✅ | 4/4 | 2026-03-05 |
+| Step 2 | 部署基准与 KPI 联动验证 | ✅ | 2/2 | 2026-03-05 |
+| Step 3 | 服务级集成链路验收门禁 | ✅ | 1/1 | 2026-03-05 |
 
 **步骤列表**:
 - **Step 1**: ExportService 导出编排与结果采集
@@ -30,7 +30,7 @@
 
 ---
 
-## Step 1: ExportService 导出编排与结果采集 (ExportOrchestrationGate) ⏳
+## Step 1: ExportService 导出编排与结果采集 (ExportOrchestrationGate) ✅
 
 **目标**: 建立导出任务状态约束、执行结果采集与错误码映射测试基线。
 
@@ -40,13 +40,13 @@
 - 读取 `docs/init/5.附录.md` 对齐 `EXPORT_FAILED`
 
 **交付物**:
-- ⏳ `src/services/export_service.py`
-- ⏳ `tests/services/test_export_service.py`
+- ✅ `src/services/export_service.py`
+- ✅ `tests/services/test_export_service.py`
 
 **验收标准**:
-- [ ] 非法任务状态禁止发起导出
-- [ ] 导出成功后产物索引可查询
-- [ ] 导出失败可映射标准错误码并保留诊断信息
+- [x] 非法任务状态禁止发起导出
+- [x] 导出成功后产物索引可查询
+- [x] 导出失败可映射标准错误码并保留诊断信息
 
 ### Red / Green / Refactor 流程图
 
@@ -67,7 +67,7 @@ stateDiagram-v2
 
 ---
 
-## Step 2: 部署基准与 KPI 联动验证 (DeployKpiMergeGate) ⏳
+## Step 2: 部署基准与 KPI 联动验证 (DeployKpiMergeGate) ✅
 
 **目标**: 验证 `deploy_benchmark.json` 字段完整性与 KPI 约束/加权逻辑一致性。
 
@@ -76,13 +76,13 @@ stateDiagram-v2
 - 读取 `docs/init/5.附录.md` 了解 KPI 权重与阈值约束
 
 **交付物**:
-- ⏳ `src/services/export_service.py`（基准与联动逻辑）
-- ⏳ `tests/services/test_export_service.py`（KPI 联动测试）
+- ✅ `src/services/export_service.py`（基准与联动逻辑）
+- ✅ `tests/services/test_export_service.py`（KPI 联动测试）
 
 **验收标准**:
-- [ ] 基准 JSON 字段完整且单位一致
-- [ ] 包含时延约束时触发正确阈值判断
-- [ ] KPI 联动结果可回写任务摘要
+- [x] 基准 JSON 字段完整且单位一致
+- [x] 包含时延约束时触发正确阈值判断
+- [x] KPI 联动结果可回写任务摘要
 
 ### 流程图（指标闭环）
 
@@ -103,7 +103,7 @@ flowchart TD
 
 ---
 
-## Step 3: 服务级集成链路验收门禁 (TrainingFlowIntegrationGate) ⏳
+## Step 3: 服务级集成链路验收门禁 (TrainingFlowIntegrationGate) ✅
 
 **目标**: 以服务边界完成端到端集成验证，覆盖“创建任务 → 训练完成 → 评估完成 → 证据包生成”，并验证 Agent 默认不自动建任务。
 
@@ -112,12 +112,12 @@ flowchart TD
 - 读取 `docs/dev_step/3.业务逻辑层.md` Verification 要求
 
 **交付物**:
-- ⏳ `tests/services/test_training_flow_integration.py`
+- ✅ `tests/services/test_training_flow_integration.py`
 
 **验收标准**:
-- [ ] 主流程关键状态与关键产物都可断言
-- [ ] Agent 建议输出可通过 schema 与 evidence 引用校验
-- [ ] 默认策略“不自动创建任务”在集成场景成立
+- [x] 主流程关键状态与关键产物都可断言
+- [x] Agent 建议输出可通过 schema 与 evidence 引用校验
+- [x] 默认策略“不自动创建任务”在集成场景成立
 
 ### 集成流程图（服务级）
 
@@ -151,16 +151,16 @@ flowchart TD
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | ExportService 导出编排与结果采集 | ⏳ | 0/0 | - |
-| Step 2 | 部署基准与 KPI 联动验证 | ⏳ | 0/0 | - |
-| Step 3 | 服务级集成链路验收门禁 | ⏳ | 0/0 | - |
+| Step 1 | ExportService 导出编排与结果采集 | ✅ | 4/4 | 2026-03-05 |
+| Step 2 | 部署基准与 KPI 联动验证 | ✅ | 2/2 | 2026-03-05 |
+| Step 3 | 服务级集成链路验收门禁 | ✅ | 1/1 | 2026-03-05 |
 
 ### 实现检查清单
-- [ ] Red：失败测试先行，覆盖非法状态/导出失败/阈值失败
-- [ ] Green：导出与集成主路径全绿
-- [ ] Refactor：导出后端扩展结构稳定且不破坏行为
+- [x] Red：失败测试先行，覆盖非法状态/导出失败/阈值失败
+- [x] Green：导出与集成主路径全绿
+- [x] Refactor：导出后端扩展结构稳定且不破坏行为
 
 ### 质量标准
-- [ ] 业务层测试覆盖率保持 ≥ 80%
-- [ ] 导出与评估指标可追溯、可复核
-- [ ] 服务级主流程满足进入接口层的交付门禁
+- [x] 业务层测试覆盖率保持 ≥ 80%
+- [x] 导出与评估指标可追溯、可复核
+- [x] 服务级主流程满足进入接口层的交付门禁

@@ -19,9 +19,9 @@
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | Job 创建与状态机迁移测试 | ⏳ | -/- | - |
-| Step 2 | 事件链与资源记录完整性测试 | ⏳ | -/- | - |
-| Step 3 | 产物索引规范与检索门禁 | ⏳ | -/- | - |
+| Step 1 | Job 创建与状态机迁移测试 | ✅ | 4/4 | 2026-03-05 |
+| Step 2 | 事件链与资源记录完整性测试 | ✅ | 1/1 | 2026-03-05 |
+| Step 3 | 产物索引规范与检索门禁 | ✅ | 4/4 | 2026-03-05 |
 
 **步骤列表**:
 - **Step 1**: Job 创建与状态机迁移测试
@@ -30,7 +30,7 @@
 
 ---
 
-## Step 1: Job 创建与状态机迁移测试 (JobStateMachineGuard) ⏳
+## Step 1: Job 创建与状态机迁移测试 (JobStateMachineGuard) ✅
 
 **目标**: 用测试固化状态机迁移路径，确保合法迁移通过、非法迁移阻断并返回统一错误语义。
 
@@ -39,13 +39,13 @@
 - 读取 `docs/TODO/2.数据层/3.TODO_PHASE3.md` 对齐验收标准
 
 **交付物**:
-- ⏳ `tests/repositories/test_job_repository.py` - 状态机测试套件
-- ⏳ `src/repositories/job_repository.py` - 最小可通过实现
+- ✅ `tests/repositories/test_job_repository.py` - 状态机测试套件
+- ✅ `src/repositories/job_repository.py` - 最小可通过实现
 
 **验收标准**:
-- [ ] Job 创建必填字段校验可测
-- [ ] 合法迁移路径可通过
-- [ ] 非法状态跃迁被阻断并返回统一错误码
+- [x] Job 创建必填字段校验可测
+- [x] 合法迁移路径可通过
+- [x] 非法状态跃迁被阻断并返回统一错误码
 
 ### Red Phase - 失败的测试定义
 
@@ -100,7 +100,7 @@ flowchart LR
 
 ---
 
-## Step 2: 事件链与资源记录完整性测试 (EventResourceTraceability) ⏳
+## Step 2: 事件链与资源记录完整性测试 (EventResourceTraceability) ✅
 
 **目标**: 验证状态事件追加顺序、资源占用记录完整性与并发场景下的数据不丢失。
 
@@ -109,12 +109,12 @@ flowchart LR
 - 读取 `docs/init/3.模块设计文档.md` 了解资源记录语义
 
 **交付物**:
-- ⏳ `tests/repositories/test_job_repository.py` - 事件与资源测试用例
-- ⏳ `src/repositories/job_repository.py` - 事件/资源实现
+- ✅ `tests/repositories/test_job_repository.py` - 事件与资源测试用例
+- ✅ `src/repositories/job_repository.py` - 事件/资源实现
 
 **验收标准**:
-- [ ] 每次迁移都可追溯到事件记录
-- [ ] 资源字段（GPU/CPU/Mem）记录完整
+- [x] 每次迁移都可追溯到事件记录
+- [x] 资源字段（GPU/CPU/Mem）记录完整
 - [ ] 并发记录场景不丢事件、不乱序
 
 ### Red / Green / Refactor 流程图
@@ -140,7 +140,7 @@ sequenceDiagram
 
 ---
 
-## Step 3: 产物索引规范与检索门禁 (ArtifactIndexContractGate) ⏳
+## Step 3: 产物索引规范与检索门禁 (ArtifactIndexContractGate) ✅
 
 **目标**: 验证权重、评估、证据包、LLM 输出、导出产物索引的登记与检索契约。
 
@@ -149,13 +149,13 @@ sequenceDiagram
 - 读取 `docs/TODO/2.数据层/3.TODO_PHASE3.md` 对齐索引要求
 
 **交付物**:
-- ⏳ `tests/repositories/test_artifact_repository.py` - 产物索引测试套件
-- ⏳ `src/repositories/artifact_repository.py` - 索引登记与查询实现
+- ✅ `tests/repositories/test_artifact_repository.py` - 产物索引测试套件
+- ✅ `src/repositories/artifact_repository.py` - 索引登记与查询实现
 
 **验收标准**:
-- [ ] 核心产物类型都可登记与查询
-- [ ] 路径规范不合法输入可拒绝
-- [ ] 支持相对路径或对象存储 ID 的统一检索
+- [x] 核心产物类型都可登记与查询
+- [x] 路径规范不合法输入可拒绝
+- [x] 支持相对路径或对象存储 ID 的统一检索
 
 ### 流程图（索引登记与查询）
 
@@ -184,16 +184,16 @@ flowchart TD
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | Job 创建与状态机迁移测试 | ⏳ | 0/0 | - |
-| Step 2 | 事件链与资源记录完整性测试 | ⏳ | 0/0 | - |
-| Step 3 | 产物索引规范与检索门禁 | ⏳ | 0/0 | - |
+| Step 1 | Job 创建与状态机迁移测试 | ✅ | 4/4 | 2026-03-05 |
+| Step 2 | 事件链与资源记录完整性测试 | ✅ | 1/1 | 2026-03-05 |
+| Step 3 | 产物索引规范与检索门禁 | ✅ | 4/4 | 2026-03-05 |
 
 ### 实现检查清单
-- [ ] Red：状态机非法路径、索引非法输入等失败用例先行
-- [ ] Green：最小实现覆盖创建/迁移/登记/查询主路径
-- [ ] Refactor：状态矩阵与路径校验器可维护、可扩展
+- [x] Red：状态机非法路径、索引非法输入等失败用例先行
+- [x] Green：最小实现覆盖创建/迁移/登记/查询主路径
+- [x] Refactor：状态矩阵与路径校验器可维护、可扩展
 
 ### 质量标准
-- [ ] 状态机与索引相关测试全部通过
-- [ ] 关键实体（Job、ArtifactIndex）CRUD 行为可回归
-- [ ] 非法迁移/非法路径均返回统一错误语义
+- [x] 状态机与索引相关测试全部通过
+- [x] 关键实体（Job、ArtifactIndex）CRUD 行为可回归
+- [x] 非法迁移/非法路径均返回统一错误语义

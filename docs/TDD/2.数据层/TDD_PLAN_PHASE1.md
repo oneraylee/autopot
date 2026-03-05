@@ -18,9 +18,9 @@
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | Project 与 KPI 版本读写测试基线 | ⏳ | -/- | - |
-| Step 2 | DatasetVersion 冻结与冲突测试基线 | ⏳ | -/- | - |
-| Step 3 | 统一返回模型与回归门禁 | ⏳ | -/- | - |
+| Step 1 | Project 与 KPI 版本读写测试基线 | ✅ | 5/5 | 2026-03-05 |
+| Step 2 | DatasetVersion 冻结与冲突测试基线 | ✅ | 4/4 | 2026-03-05 |
+| Step 3 | 统一返回模型与回归门禁 | ✅ | 2/2 | 2026-03-05 |
 
 **步骤列表**:
 - **Step 1**: Project 与 KPI 版本读写测试基线
@@ -29,7 +29,7 @@
 
 ---
 
-## Step 1: Project 与 KPI 版本读写测试基线 (ProjectKpiRepoBaseline) ⏳
+## Step 1: Project 与 KPI 版本读写测试基线 (ProjectKpiRepoBaseline) ✅
 
 **目标**: 建立项目与 KPI 配置仓储的 Red 测试集合，覆盖 CRUD、版本化读取、默认版本回退。
 
@@ -38,13 +38,13 @@
 - 读取 `docs/init/5.附录.md` 对齐 KPI 配置结构
 
 **交付物**:
-- ⏳ `tests/repositories/test_project_repository.py` - 项目/KPI 测试套件
-- ⏳ `src/repositories/project_repository.py` - 最小可通过实现
+- ✅ `tests/repositories/test_project_repository.py` - 项目/KPI 测试套件
+- ✅ `src/repositories/project_repository.py` - 最小可通过实现
 
 **验收标准**:
-- [ ] 项目创建、更新、查询全链路可测
-- [ ] KPI 配置支持同项目多版本读取
-- [ ] 不存在项目返回统一错误语义
+- [x] 项目创建、更新、查询全链路可测
+- [x] KPI 配置支持同项目多版本读取
+- [x] 不存在项目返回统一错误语义
 
 ### Red Phase - 失败的测试定义
 
@@ -97,12 +97,12 @@ flowchart LR
 3. 强化类型注解与测试夹具复用
 
 **验收标准**:
-- [ ] Step 1 测试保持全绿
-- [ ] 关键分支具备明确错误语义
+- [x] Step 1 测试保持全绿
+- [x] 关键分支具备明确错误语义
 
 ---
 
-## Step 2: DatasetVersion 冻结与冲突测试基线 (DatasetVersionFreezeGuard) ⏳
+## Step 2: DatasetVersion 冻结与冲突测试基线 (DatasetVersionFreezeGuard) ✅
 
 **目标**: 建立数据集版本创建、重复冲突、冻结后只读约束的可回归测试体系。
 
@@ -111,13 +111,13 @@ flowchart LR
 - 读取 `docs/init/1.产品PRD.md` 对齐可复现要求
 
 **交付物**:
-- ⏳ `tests/repositories/test_dataset_repository.py` - 数据集版本测试
-- ⏳ `src/repositories/dataset_repository.py` - 最小可通过实现
+- ✅ `tests/repositories/test_dataset_repository.py` - 数据集版本测试
+- ✅ `src/repositories/dataset_repository.py` - 最小可通过实现
 
 **验收标准**:
-- [ ] 数据集与版本创建路径可测
-- [ ] 重复版本号冲突可稳定触发
-- [ ] 冻结后关键字段更新被阻断
+- [x] 数据集与版本创建路径可测
+- [x] 重复版本号冲突可稳定触发
+- [x] 冻结后关键字段更新被阻断
 
 ### Red / Green / Refactor 流程图
 
@@ -137,18 +137,18 @@ stateDiagram-v2
 
 ---
 
-## Step 3: 统一返回模型与回归门禁 (RepositoryContractGate) ⏳
+## Step 3: 统一返回模型与回归门禁 (RepositoryContractGate) ✅
 
 **目标**: 建立仓储返回模型一致性门禁，防止结构漂移影响业务层/接口层。
 
 **交付物**:
-- ⏳ `tests/repositories/test_project_repository.py` - 返回模型一致性断言
-- ⏳ `tests/repositories/test_dataset_repository.py` - 结构字段回归断言
+- ✅ `tests/repositories/test_project_repository.py` - 返回模型一致性断言
+- ✅ `tests/repositories/test_dataset_repository.py` - 结构字段回归断言
 
 **验收标准**:
-- [ ] 查询返回字段集合稳定
-- [ ] 结构变化可触发测试预警
-- [ ] 序列化输出满足上层消费约定
+- [x] 查询返回字段集合稳定
+- [x] 结构变化可触发测试预警
+- [x] 序列化输出满足上层消费约定
 
 **流程图（契约门禁）**:
 ```mermaid
@@ -167,16 +167,16 @@ flowchart TD
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | Project 与 KPI 版本读写测试基线 | ⏳ | 0/0 | - |
-| Step 2 | DatasetVersion 冻结与冲突测试基线 | ⏳ | 0/0 | - |
-| Step 3 | 统一返回模型与回归门禁 | ⏳ | 0/0 | - |
+| Step 1 | Project 与 KPI 版本读写测试基线 | ✅ | 5/5 | 2026-03-05 |
+| Step 2 | DatasetVersion 冻结与冲突测试基线 | ✅ | 4/4 | 2026-03-05 |
+| Step 3 | 统一返回模型与回归门禁 | ✅ | 2/2 | 2026-03-05 |
 
 ### 实现检查清单
-- [ ] Red：失败测试先行并覆盖验收项
-- [ ] Green：最小实现通过核心路径
-- [ ] Refactor：无行为变化且回归全绿
+- [x] Red：失败测试先行并覆盖验收项
+- [x] Green：最小实现通过核心路径
+- [x] Refactor：无行为变化且回归全绿
 
 ### 质量标准
-- [ ] Phase 1 覆盖率目标：仓储层相关测试 ≥ 85%
-- [ ] 冻结约束与版本读取规则可复测
-- [ ] 关键错误语义与 Common 错误码对齐
+- [x] Phase 1 覆盖率目标：仓储层相关测试 ≥ 85%
+- [x] 冻结约束与版本读取规则可复测
+- [x] 关键错误语义与 Common 错误码对齐
