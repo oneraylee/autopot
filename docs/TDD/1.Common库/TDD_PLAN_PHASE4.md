@@ -19,13 +19,13 @@
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | 核心 DTO 字段契约定义 | ⏳ | -/- | - |
-| Step 2 | 序列化稳定性与兼容策略 | ⏳ | -/- | - |
-| Step 3 | DTO 与校验器组合回归 | ⏳ | -/- | - |
+| Step 1 | 核心 DTO 字段契约定义 | ✅ | 3/3 | 2026-03-05 |
+| Step 2 | 序列化稳定性与兼容策略 | ✅ | 3/3 | 2026-03-05 |
+| Step 3 | DTO 与校验器组合回归 | ✅ | 2/2 | 2026-03-05 |
 
 ---
 
-## Step 1: 核心 DTO 字段契约定义 (DtoContractCore) ⏳
+## Step 1: 核心 DTO 字段契约定义 (DtoContractCore) ✅
 
 **目标**: 定义 `JobSpec`、`ProjectKpiConfig`、`EvalSummary`、`ExportSpec` 最小必填字段与类型约束。
 
@@ -34,13 +34,13 @@
 - 读取 `docs/init/5.附录.md` 对齐 KPI 配置
 
 **交付物**:
-- ⏳ `src/common/contracts.py`
-- ⏳ `tests/common/test_contract_dtos.py`
+- ✅ `src/common/contracts.py`
+- ✅ `tests/common/test_contract_dtos.py`
 
 **验收标准**:
-- [ ] DTO 字段覆盖 TODO 约定核心语义
-- [ ] 字段命名统一且无歧义
-- [ ] 必填字段缺失时可稳定失败
+- [x] DTO 字段覆盖 TODO 约定核心语义
+- [x] 字段命名统一且无歧义
+- [x] 必填字段缺失时可稳定失败
 
 ### Red/Green/Refactor 流程图
 
@@ -55,18 +55,18 @@ flowchart TD
 
 ---
 
-## Step 2: 序列化稳定性与兼容策略 (SerializationCompatibility) ⏳
+## Step 2: 序列化稳定性与兼容策略 (SerializationCompatibility) ✅
 
 **目标**: 确保 DTO 在序列化/反序列化流程中稳定，支持向后兼容扩展。
 
 **交付物**:
-- ⏳ `src/common/contracts.py`
-- ⏳ `tests/common/test_contract_dtos.py`
+- ✅ `src/common/contracts.py`
+- ✅ `tests/common/test_contract_dtos.py`
 
 **验收标准**:
-- [ ] 序列化后字段顺序与名称稳定（可比较）
-- [ ] 新增可选字段不破坏历史读取
-- [ ] 非法值输入可被识别并拒绝
+- [x] 序列化后字段顺序与名称稳定（可比较）
+- [x] 新增可选字段不破坏历史读取
+- [x] 非法值输入可被识别并拒绝
 
 **流程图（兼容性验证）**:
 ```mermaid
@@ -83,18 +83,18 @@ flowchart LR
 
 ---
 
-## Step 3: DTO 与校验器组合回归 (DtoValidatorIntegration) ⏳
+## Step 3: DTO 与校验器组合回归 (DtoValidatorIntegration) ✅
 
 **目标**: 验证 DTO 输出与 Phase 2 校验器输入边界一致，避免接口层重复修补。
 
 **交付物**:
-- ⏳ `tests/common/test_contract_dtos.py`
-- ⏳ `tests/common/test_schema_validators.py`（组合场景补充）
+- ✅ `tests/common/test_contract_dtos.py`
+- ✅ `tests/common/test_schema_validators.py`（组合场景补充）
 
 **验收标准**:
-- [ ] DTO 产出可直接进入 `validate_payload` 流程
-- [ ] 组合场景错误可定位到 DTO 字段路径
-- [ ] 回归测试覆盖 create_training_job / validate_proposals 关键参数边界
+- [x] DTO 产出可直接进入 `validate_payload` 流程
+- [x] 组合场景错误可定位到 DTO 字段路径
+- [x] 回归测试覆盖 create_training_job / validate_proposals 关键参数边界
 
 **组合测试时序图**:
 ```mermaid
@@ -117,16 +117,16 @@ sequenceDiagram
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | 核心 DTO 字段契约定义 | ⏳ | 0/0 | - |
-| Step 2 | 序列化稳定性与兼容策略 | ⏳ | 0/0 | - |
-| Step 3 | DTO 与校验器组合回归 | ⏳ | 0/0 | - |
+| Step 1 | 核心 DTO 字段契约定义 | ✅ | 3/3 | 2026-03-05 |
+| Step 2 | 序列化稳定性与兼容策略 | ✅ | 3/3 | 2026-03-05 |
+| Step 3 | DTO 与校验器组合回归 | ✅ | 2/2 | 2026-03-05 |
 
 ### 实现检查清单
-- [ ] Red：必填缺失、类型错误、边界值失败用例完备
-- [ ] Green：核心 DTO 路径全部通过
-- [ ] Refactor：字段命名统一且兼容策略明确
+- [x] Red：必填缺失、类型错误、边界值失败用例完备
+- [x] Green：核心 DTO 路径全部通过
+- [x] Refactor：字段命名统一且兼容策略明确
 
 ### 质量标准
-- [ ] 阶段覆盖率 > 90%
-- [ ] DTO 序列化行为稳定可追踪
-- [ ] 组合回归可直接支撑接口层调用
+- [x] 阶段覆盖率 > 90%
+- [x] DTO 序列化行为稳定可追踪
+- [x] 组合回归可直接支撑接口层调用

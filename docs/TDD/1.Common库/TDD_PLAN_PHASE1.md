@@ -18,9 +18,9 @@
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | 状态与任务语义枚举 | ⏳ | -/- | - |
-| Step 2 | 错误码体系与映射 | ⏳ | -/- | - |
-| Step 3 | 导出边界与回归门禁 | ⏳ | -/- | - |
+| Step 1 | 状态与任务语义枚举 | ✅ | 4/4 | 2026-03-05 |
+| Step 2 | 错误码体系与映射 | ✅ | 1/1 | 2026-03-05 |
+| Step 3 | 导出边界与回归门禁 | ✅ | 1/1 | 2026-03-05 |
 
 **步骤列表**:
 - **Step 1**: 状态与任务语义枚举
@@ -29,7 +29,7 @@
 
 ---
 
-## Step 1: 状态与任务语义枚举 (DomainEnumBaseline) ⏳
+## Step 1: 状态与任务语义枚举 (DomainEnumBaseline) ✅
 
 **目标**: 建立 `JobStatus`、`TaskType`、`PrecisionMode` 的可验证语义集合，避免多处重复定义。
 
@@ -38,13 +38,13 @@
 - 读取 `docs/init/3.模块设计文档.md` 了解 JobSpec 语义
 
 **交付物**:
-- ⏳ `src/common/domain_types.py` - 枚举定义
-- ⏳ `tests/common/test_enums_and_error_codes.py` - 枚举行为测试
+- ✅ `src/common/domain_types.py` - 枚举定义
+- ✅ `tests/common/test_enums_and_error_codes.py` - 枚举行为测试
 
 **验收标准**:
-- [ ] 状态枚举覆盖 CREATED/QUEUED/RUNNING/SUCCEEDED/FAILED/CANCELED/EVALUATING/EVAL_SUCCEEDED/EVAL_FAILED/EVIDENCE_READY/LLM_ANALYZING/LLM_DONE/LLM_FAILED
-- [ ] 任务类型与精度模式字段具备可序列化稳定值
-- [ ] 非法值输入能被一致拒绝
+- [x] 状态枚举覆盖 CREATED/QUEUED/RUNNING/SUCCEEDED/FAILED/CANCELED/EVALUATING/EVAL_SUCCEEDED/EVAL_FAILED/EVIDENCE_READY/LLM_ANALYZING/LLM_DONE/LLM_FAILED
+- [x] 任务类型与精度模式字段具备可序列化稳定值
+- [x] 非法值输入能被一致拒绝
 
 ### Red Phase - 失败的测试定义
 
@@ -93,12 +93,12 @@ flowchart LR
 3. 提炼可复用断言辅助逻辑
 
 **验收标准**:
-- [ ] 枚举命名无歧义、无重复
-- [ ] 测试断言语义清晰且可复用
+- [x] 枚举命名无歧义、无重复
+- [x] 测试断言语义清晰且可复用
 
 ---
 
-## Step 2: 错误码体系与映射 (ErrorCodeBaseline) ⏳
+## Step 2: 错误码体系与映射 (ErrorCodeBaseline) ✅
 
 **目标**: 建立错误码主集合与语义映射，覆盖附录推荐失败原因。
 
@@ -107,13 +107,13 @@ flowchart LR
 - 依赖 Step 1 的基础枚举
 
 **交付物**:
-- ⏳ `src/common/domain_types.py` - `ErrorCode` 定义
-- ⏳ `tests/common/test_enums_and_error_codes.py` - 错误码测试
+- ✅ `src/common/domain_types.py` - `ErrorCode` 定义
+- ✅ `tests/common/test_enums_and_error_codes.py` - 错误码测试
 
 **验收标准**:
-- [ ] 至少覆盖 TRAIN_OOM/TRAIN_NAN/DATA_INVALID/EVAL_FAILED/LLM_FAILED/EXPORT_FAILED
-- [ ] 错误码值稳定且唯一
-- [ ] 预留新增错误码向后兼容策略
+- [x] 至少覆盖 TRAIN_OOM/TRAIN_NAN/DATA_INVALID/EVAL_FAILED/LLM_FAILED/EXPORT_FAILED
+- [x] 错误码值稳定且唯一
+- [x] 预留新增错误码向后兼容策略
 
 ### Red / Green / Refactor 流程图
 
@@ -133,17 +133,17 @@ stateDiagram-v2
 
 ---
 
-## Step 3: 导出边界与回归门禁 (PublicBoundaryGate) ⏳
+## Step 3: 导出边界与回归门禁 (PublicBoundaryGate) ✅
 
 **目标**: 统一 `__all__` 与导入边界，建立 Phase 级回归门禁。
 
 **交付物**:
-- ⏳ `src/common/domain_types.py` - 导出边界
-- ⏳ `tests/common/test_enums_and_error_codes.py` - 导入可见性测试
+- ✅ `src/common/domain_types.py` - 导出边界
+- ✅ `tests/common/test_enums_and_error_codes.py` - 导入可见性测试
 
 **验收标准**:
-- [ ] 星号导入仅暴露约定符号
-- [ ] 破坏性导出变更会触发测试失败
+- [x] 星号导入仅暴露约定符号
+- [x] 破坏性导出变更会触发测试失败
 
 **流程图（门禁）**:
 ```mermaid
@@ -162,16 +162,16 @@ flowchart TD
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | 状态与任务语义枚举 | ⏳ | 0/0 | - |
-| Step 2 | 错误码体系与映射 | ⏳ | 0/0 | - |
-| Step 3 | 导出边界与回归门禁 | ⏳ | 0/0 | - |
+| Step 1 | 状态与任务语义枚举 | ✅ | 4/4 | 2026-03-05 |
+| Step 2 | 错误码体系与映射 | ✅ | 1/1 | 2026-03-05 |
+| Step 3 | 导出边界与回归门禁 | ✅ | 1/1 | 2026-03-05 |
 
 ### 实现检查清单
-- [ ] Red：失败用例已先行且覆盖全部验收项
-- [ ] Green：最小实现通过所有核心用例
-- [ ] Refactor：无行为变化且通过全量回归
+- [x] Red：失败用例已先行且覆盖全部验收项
+- [x] Green：最小实现通过所有核心用例
+- [x] Refactor：无行为变化且通过全量回归
 
 ### 质量标准
-- [ ] 阶段覆盖率 > 90%
-- [ ] 公共符号有文档注释
-- [ ] 无重复定义与命名冲突
+- [x] 阶段覆盖率 > 90%
+- [x] 公共符号有文档注释
+- [x] 无重复定义与命名冲突

@@ -18,13 +18,13 @@
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | 统一错误结构与规则 | ⏳ | -/- | - |
-| Step 2 | 三类对象独立校验入口 | ⏳ | -/- | - |
-| Step 3 | 统一分发与回归矩阵 | ⏳ | -/- | - |
+| Step 1 | 统一错误结构与规则 | ✅ | 3/3 | 2026-03-05 |
+| Step 2 | 三类对象独立校验入口 | ✅ | 4/4 | 2026-03-05 |
+| Step 3 | 统一分发与回归矩阵 | ✅ | 3/3 | 2026-03-05 |
 
 ---
 
-## Step 1: 统一错误结构与规则 (ValidationErrorContract) ⏳
+## Step 1: 统一错误结构与规则 (ValidationErrorContract) ✅
 
 **目标**: 定义稳定错误格式，保证 API 层可直接消费。
 
@@ -33,12 +33,12 @@
 - 依赖 Phase 1 错误码基线
 
 **交付物**:
-- ⏳ `src/common/schema_validators.py`
-- ⏳ `tests/common/test_schema_validators.py`
+- ✅ `src/common/schema_validators.py`
+- ✅ `tests/common/test_schema_validators.py`
 
 **验收标准**:
-- [ ] 缺字段/类型错误/非法枚举值返回统一结构
-- [ ] 错误结构包含路径、错误类型、可读消息
+- [x] 缺字段/类型错误/非法枚举值返回统一结构
+- [x] 错误结构包含路径、错误类型、可读消息
 
 ### Red/Green/Refactor 流程图
 
@@ -54,18 +54,18 @@ flowchart TD
 
 ---
 
-## Step 2: 三类对象独立校验入口 (ValidatorTriplet) ⏳
+## Step 2: 三类对象独立校验入口 (ValidatorTriplet) ✅
 
 **目标**: 分别实现 `validate_eval_report`、`validate_evidence_pack`、`validate_next_experiments`。
 
 **交付物**:
-- ⏳ `src/common/schema_validators.py`
-- ⏳ `tests/common/test_schema_validators.py`
+- ✅ `src/common/schema_validators.py`
+- ✅ `tests/common/test_schema_validators.py`
 
 **验收标准**:
-- [ ] EvalReport：`overall.business_kpi`、`kpi_components`、`by_scene` 等关键字段校验完整
-- [ ] EvidencePack：KPI 配置与索引路径字段校验完整
-- [ ] NextExperiments：`name/changes/expected/evidence_refs` 最小闭包校验完整
+- [x] EvalReport：`overall.business_kpi`、`kpi_components`、`by_scene` 等关键字段校验完整
+- [x] EvidencePack：KPI 配置与索引路径字段校验完整
+- [x] NextExperiments：`name/changes/expected/evidence_refs` 最小闭包校验完整
 
 **测试流（对象级）**:
 ```mermaid
@@ -87,18 +87,18 @@ sequenceDiagram
 
 ---
 
-## Step 3: 统一分发与回归矩阵 (DispatchAndRegression) ⏳
+## Step 3: 统一分发与回归矩阵 (DispatchAndRegression) ✅
 
 **目标**: 提供 `validate_payload(kind, data)` 统一入口，并建立场景矩阵回归。
 
 **交付物**:
-- ⏳ `src/common/schema_validators.py`
-- ⏳ `tests/common/test_schema_validators.py`
+- ✅ `src/common/schema_validators.py`
+- ✅ `tests/common/test_schema_validators.py`
 
 **验收标准**:
-- [ ] `kind` 分发准确
-- [ ] 错误码映射稳定
-- [ ] 对大对象输入具备明确失败策略
+- [x] `kind` 分发准确
+- [x] 错误码映射稳定
+- [x] 对大对象输入具备明确失败策略
 
 **回归矩阵图**:
 ```mermaid
@@ -118,16 +118,16 @@ flowchart LR
 
 | 步骤 | 名称 | 状态 | 测试 | 完成日期 |
 |------|------|------|------|----------|
-| Step 1 | 统一错误结构与规则 | ⏳ | 0/0 | - |
-| Step 2 | 三类对象独立校验入口 | ⏳ | 0/0 | - |
-| Step 3 | 统一分发与回归矩阵 | ⏳ | 0/0 | - |
+| Step 1 | 统一错误结构与规则 | ✅ | 3/3 | 2026-03-05 |
+| Step 2 | 三类对象独立校验入口 | ✅ | 4/4 | 2026-03-05 |
+| Step 3 | 统一分发与回归矩阵 | ✅ | 3/3 | 2026-03-05 |
 
 ### 实现检查清单
-- [ ] Red：每个必填字段至少有 1 个失败样例
-- [ ] Green：三类对象正向样例全部通过
-- [ ] Refactor：分发逻辑简化且不改变外部行为
+- [x] Red：每个必填字段至少有 1 个失败样例
+- [x] Green：三类对象正向样例全部通过
+- [x] Refactor：分发逻辑简化且不改变外部行为
 
 ### 质量标准
-- [ ] 阶段覆盖率 > 90%
-- [ ] 错误结构稳定并可透传
-- [ ] 回归矩阵覆盖关键边界场景
+- [x] 阶段覆盖率 > 90%
+- [x] 错误结构稳定并可透传
+- [x] 回归矩阵覆盖关键边界场景
