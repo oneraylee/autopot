@@ -92,5 +92,9 @@ def test_public_boundary_exports_only_contract_symbols():
     from common import domain_types
 
     exported = set(domain_types.__all__)
-    expected = {"JobStatus", "TaskType", "PrecisionMode", "ErrorCode"}
+    expected = {
+        "JobStatus", "TaskType", "PrecisionMode", "ErrorCode",
+        "SkillCategory", "SkillLayer", "SkillMaturity",
+        "LLMCallType", "RelationType",
+    }
     assert exported == expected

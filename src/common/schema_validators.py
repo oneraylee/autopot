@@ -1,7 +1,7 @@
 import json
 from typing import Any
 
-from common.domain_types import ErrorCode
+from common.domain_types import ErrorCode, SkillCategory
 
 
 _MAX_PAYLOAD_BYTES = 1024 * 1024
@@ -128,3 +128,50 @@ def validate_payload(kind: str, data: Any) -> dict[str, Any]:
         _error("kind", "unsupported_kind", f"unsupported kind: {kind}"),
         error_code=ErrorCode.EVAL_FAILED,
     )
+
+
+_VALID_CATEGORIES = {e.value for e in SkillCategory}
+_VALID_TASK_TYPES = {"det", "seg", "cls", "multi"}
+
+
+def validate_skill_card(data: Any) -> dict[str, Any]:
+    if not isinstance(data, dict):
+        return _fail(_error("$", "type_error", "skill_card must be an object"))
+
+    errors: list[dict[str, str]] = []
+    if not _is_non_empty_str(data.get("skill_code")):
+        errors.append(_error("skill_code", "missing_required", "skill_code is required"))
+    if not _is_non_empty_str(data.get("name")):
+        errors.append(_error("name", "missing_required", "name is required"))
+
+    category = data.get("category")
+    if not _is_non_empty_str(category):
+        errors.append(_error("category", "missing_required", "category is required"))
+    elif category not in _VALID_CATEGORIES:
+        errors.append(_error("category", "invalid_enum", f"category must be one of {sorted(_VALID_CATEGORIES)}"))
+
+    if not _is_non_empty_str(data.get("maturity")):
+        errors.append(_error("maturity", "missing_required", "maturity is required"))
+
+    if errors:
+        return _fail(*errors, error_code=ErrorCode.KNOWLEDGE_IMPORT_FAILED)
+    return _ok()
+
+
+def validate_query_signature(data: Any) -> dict[str, Any]:
+    if not isinstance(data, dict):
+        return _fail(_error("$", "type_error", "query_signature must be an object"))
+
+    errors: list[dict[str, str]] = []
+    task_type = data.get("task_type")
+    if not _is_non_empty_str(task_type):
+        errors.append(_error("task_type", "missing_required", "task_type is required"))
+    elif task_type not in _VALID_TASK_TYPES:
+        errors.append(_error("task_type", "invalid_enum", f"task_type must be one of {sorted(_VALID_TASK_TYPES)}"))
+
+    if not _is_non_empty_str(data.get("model_family")):
+        errors.append(_error("model_family", "missing_required", "model_family is required"))
+
+    if errors:
+        return _fail(*errors, error_code=ErrorCode.LLM_GATEWAY_ERROR)
+    return _ok()

@@ -37,6 +37,70 @@ class ErrorCode(StrEnum):
     EVAL_FAILED = "EVAL_FAILED"
     LLM_FAILED = "LLM_FAILED"
     EXPORT_FAILED = "EXPORT_FAILED"
+    LLM_GATEWAY_ERROR = "LLM_GATEWAY_ERROR"
+    KNOWLEDGE_IMPORT_FAILED = "KNOWLEDGE_IMPORT_FAILED"
+
+
+class SkillCategory(StrEnum):
+    TRAINING = "training"
+    MODEL = "model"
+    DATA = "data"
+    EVAL_DEPLOY = "eval_deploy"
+
+
+class SkillLayer(StrEnum):
+    # Training
+    OPTIMIZER = "optimizer"
+    SCHEDULE = "schedule"
+    AUGMENT = "augment"
+    REGULARIZATION = "regularization"
+    PRECISION = "precision"
+    FREEZE = "freeze"
+    HYPERPARAMETER = "hyperparameter"
+    DISTRIBUTED = "distributed"
+    # Model
+    BACKBONE = "backbone"
+    NECK = "neck"
+    HEAD = "head"
+    BLOCK = "block"
+    ATTENTION = "attention"
+    CONV = "conv"
+    LOSS = "loss"
+    # Data
+    CLEANING = "cleaning"
+    BALANCING = "balancing"
+    SCENE_COVERAGE = "scene_coverage"
+    SPLIT = "split"
+    PREPROCESSING = "preprocessing"
+    # Eval & Deploy
+    METRIC = "metric"
+    CALIBRATION = "calibration"
+    QUANTIZATION = "quantization"
+    EXPORT = "export"
+    BENCHMARK = "benchmark"
+
+
+class SkillMaturity(StrEnum):
+    DRAFT = "draft"
+    REVIEWED = "reviewed"
+    VERIFIED = "verified"
+    DEPRECATED = "deprecated"
+
+
+class LLMCallType(StrEnum):
+    AGENT_PLAN = "agent_plan"
+    AGENT_DIAGNOSE = "agent_diagnose"
+    SKILL_EXTRACT = "skill_extract"
+    CONFLICT_ANALYZE = "conflict_analyze"
+    EMBEDDING = "embedding"
+
+
+class RelationType(StrEnum):
+    INCOMPATIBLE_WITH = "incompatible_with"
+    DEPENDS_ON = "depends_on"
+    COMPLEMENTS = "complements"
+    SUPERSEDES = "supersedes"
+    DUPLICATES = "duplicates"
 
 
 __all__ = [
@@ -44,4 +108,9 @@ __all__ = [
     "TaskType",
     "PrecisionMode",
     "ErrorCode",
+    "SkillCategory",
+    "SkillLayer",
+    "SkillMaturity",
+    "LLMCallType",
+    "RelationType",
 ]
