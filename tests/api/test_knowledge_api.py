@@ -1,4 +1,4 @@
-"""RED tests for Knowledge System API (Phase 2 Step 4)."""
+"""RED tests for Knowledge System API (Phase 2 Step 4 + Phase 4 Step 3)."""
 import json
 import pytest
 from unittest.mock import MagicMock
@@ -254,3 +254,203 @@ def test_response_structure_consistent():
     assert "ok" in not_found_response
     assert not_found_response["ok"] is False
     assert "error" in not_found_response
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Phase 4 Step 3 – Outcome 回写 API
+# ══════════════════════════════════════════════════════════════════════════════
+
+def _make_routes_with_outcome_tracker():
+    """Build KnowledgeRoutes with an outcome_tracker_service attached."""
+    from api.knowledge_routes import KnowledgeRoutes
+    from repositories.knowledge_repository import KnowledgeRepository
+    from services.knowledge_ingestion_service import KnowledgeIngestionService
+    from services.knowledge_registry_service import KnowledgeRegistryService
+    from services.skill_outcome_tracker_service import SkillOutcomeTrackerService
+
+    repo = KnowledgeRepository()
+    gw = MagicMock()
+    gw.chat_completion.return_value = {
+        "content": json.dumps([{
+            "name": "label_smoothing",
+            "category": "regularization", "layer": "training",
+            "condition": "overfitting",
+            "action": {"target_path": "trainer.label_smoothing", "value": 0.1},
+            "tradeoff": "accuracy drop",
+        }]),
+        "usage": {"input_tokens": 100, "output_tokens": 30},
+    }
+    ingestion = KnowledgeIngestionService(knowledge_repo=repo, llm_gateway=gw)
+    registry = KnowledgeRegistryService(knowledge_repo=repo)
+    tracker = SkillOutcomeTrackerService(knowledge_repo=repo)
+    return KnowledgeRoutes(
+        ingestion_service=ingestion,
+        registry_service=registry,
+        outcome_tracker_service=tracker,
+    ), repo, tracker
+
+
+def _make_routes_with_composer_and_tracker():
+    """Build KnowledgeRoutes with composer + tracker."""
+    from api.knowledge_routes import KnowledgeRoutes
+    from repositories.knowledge_repository import KnowledgeRepository
+    from services.knowledge_ingestion_service import KnowledgeIngestionService
+    from services.knowledge_registry_service import KnowledgeRegistryService
+    from services.knowledge_retrieval_service import KnowledgeRetrievalService
+    from services.conflict_resolution_service import ConflictResolutionService
+    from services.strategy_composer_service import StrategyComposerService
+    from services.skill_outcome_tracker_service import SkillOutcomeTrackerService
+
+    repo = KnowledgeRepository()
+    gw = MagicMock()
+    gw.chat_completion.return_value = {
+        "content": json.dumps([]), "usage": {"input_tokens": 50, "output_tokens": 10},
+    }
+    ingestion = KnowledgeIngestionService(knowledge_repo=repo, llm_gateway=gw)
+    registry = KnowledgeRegistryService(knowledge_repo=repo)
+    retrieval = KnowledgeRetrievalService(knowledge_repo=repo)
+    conflict = ConflictResolutionService()
+    composer = StrategyComposerService(
+        retrieval_service=retrieval,
+        conflict_service=conflict,
+        knowledge_repo=repo,
+    )
+    tracker = SkillOutcomeTrackerService(knowledge_repo=repo)
+    return KnowledgeRoutes(
+        ingestion_service=ingestion,
+        registry_service=registry,
+        retrieval_service=retrieval,
+        conflict_service=conflict,
+        composer_service=composer,
+        outcome_tracker_service=tracker,
+    ), repo
+
+
+def test_post_outcomes_success():
+    """POST /knowledge/outcomes 回写成功，返回 outcome 记录。"""
+    routes, repo, tracker = _make_routes_with_outcome_tracker()
+    # Create a skill first
+    from services.knowledge_registry_service import KnowledgeRegistryService
+    registry = KnowledgeRegistryService(knowledge_repo=repo)
+    skill = registry.create_skill(
+        skill_code="TECH-OUT-001", name="outcome_skill",
+        category="augmentation", layer="training",
+        task_type="det", maturity="stable",
+        default_priority=3, summary="Outcome test skill.",
+    )
+
+    response = routes.post_outcomes({
+        "technique_id": skill["skill_id"],
+        "project_id": "proj-001",
+        "baseline_job_id": "job-001",
+        "candidate_job_id": "job-002",
+        "result_summary": {"kpi_diff": 0.05, "map50": 0.82},
+        "verdict": "win",
+        "scenario_signature": {"task_type": "det", "scene": "night"},
+    })
+    assert response["ok"] is True
+    assert response["data"]["verdict"] == "win"
+    assert "outcome_id" in response["data"]
+
+
+def test_post_outcomes_missing_field_rejected():
+    """POST /knowledge/outcomes 缺必填字段被拒（VALIDATION_ERROR）。"""
+    routes, _, _ = _make_routes_with_outcome_tracker()
+    response = routes.post_outcomes({
+        # missing technique_id, baseline_job_id, etc.
+        "project_id": "proj-001",
+    })
+    assert response["ok"] is False
+    assert response["error"]["code"] == "VALIDATION_ERROR"
+
+
+def test_post_outcomes_invalid_technique_error():
+    """POST /knowledge/outcomes technique_id 不存在时返回错误。"""
+    routes, _, _ = _make_routes_with_outcome_tracker()
+    response = routes.post_outcomes({
+        "technique_id": "nonexistent-skill-id",
+        "project_id": "proj-001",
+        "baseline_job_id": "job-001",
+        "candidate_job_id": "job-002",
+        "result_summary": {"kpi_diff": 0.03},
+        "verdict": "win",
+    })
+    assert response["ok"] is False
+    assert response["error"]["code"] in {"NOT_FOUND", "VALIDATION_ERROR"}
+
+
+def test_post_knowledge_plan_trigger():
+    """POST /datasets/versions/{id}/knowledge-plan 触发规划上下文生成，返回 snapshot_id。"""
+    routes, _ = _make_routes_with_composer_and_tracker()
+    response = routes.post_dataset_knowledge_plan(
+        version_id="version-001",
+        payload={
+            "dataset_report": {
+                "task_type": "det",
+                "stats": {"small_object_ratio": 0.3, "total_images": 5000},
+                "scene_gaps": [{"scene": "night", "risk": "high"}],
+            },
+            "project_constraints": {"gpu_mem_gb": 16},
+            "project_id": "proj-001",
+        },
+    )
+    assert response["ok"] is True
+    assert "snapshot_id" in response["data"]
+
+
+def test_post_knowledge_diagnosis_trigger():
+    """POST /jobs/{id}/knowledge-diagnosis 触发诊断上下文生成，返回 snapshot_id。"""
+    routes, _ = _make_routes_with_composer_and_tracker()
+    response = routes.post_job_knowledge_diagnosis(
+        job_id="job-001",
+        payload={
+            "evidence_pack": {
+                "job_summary": {"job_id": "job-001", "train_args": {}},
+                "eval": {"business_kpi": 0.72, "by_scene": {"night": {"fn": 45}}},
+                "dataset_report": {
+                    "task_type": "det",
+                    "stats": {"small_object_ratio": 0.25},
+                },
+            },
+            "project_constraints": {},
+            "project_id": "proj-001",
+        },
+    )
+    assert response["ok"] is True
+    assert "snapshot_id" in response["data"]
+
+
+def test_post_validate_with_knowledge_pass():
+    """POST /proposals/validate-with-knowledge 无冲突技能组合校验通过。"""
+    routes, _ = _make_routes_with_composer_and_tracker()
+    response = routes.post_validate_with_knowledge({
+        "technique_ids": [],
+        "runtime_constraints": {"gpu_mem_gb": 32},
+    })
+    assert response["ok"] is True
+
+
+def test_post_validate_with_knowledge_conflict_fail():
+    """POST /proposals/validate-with-knowledge GPU 超限时校验失败。"""
+    routes, repo = _make_routes_with_composer_and_tracker()
+    # Place a skill with high GPU requirement
+    from services.knowledge_registry_service import KnowledgeRegistryService
+    registry = KnowledgeRegistryService(knowledge_repo=repo)
+    registry.create_skill(
+        skill_code="GPU-HEAVY-001", name="heavy_skill",
+        category="augmentation", layer="training",
+        task_type="det", maturity="stable", default_priority=3,
+        summary="GPU heavy.",
+    )
+
+    response = routes.post_validate_with_knowledge({
+        "technique_ids": [],
+        "runtime_constraints": {"gpu_mem_gb": 0.1},  # effectively zero budget
+        "techniques": [
+            {"technique_id": "GPU-HEAVY-001", "resources": {"gpu_mem_gb": 10.0}},
+        ],
+    })
+    # Conflict: GPU exceeds budget → validation fails
+    assert response["ok"] is False or (
+        response["ok"] is True and response["data"].get("validation", {}).get("ok") is False
+    )

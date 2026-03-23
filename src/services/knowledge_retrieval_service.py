@@ -32,9 +32,10 @@ class KnowledgeRetrievalService:
         → write retrieval_log
     """
 
-    def __init__(self, *, knowledge_repo: Any, internal_priors: dict[str, float] | None = None) -> None:
+    def __init__(self, *, knowledge_repo: Any, internal_priors: dict[str, float] | None = None, outcome_tracker: Any | None = None) -> None:
         self._repo = knowledge_repo
         self._internal_priors: dict[str, float] = internal_priors or {}
+        self._outcome_tracker = outcome_tracker
 
     # ── QuerySignature builders ──────────────
 
@@ -125,9 +126,13 @@ class KnowledgeRetrievalService:
                     rule_match += 1.0
 
             default_priority = float(skill.get("default_priority", 3))
-            internal_prior = self._internal_priors.get(
-                skill.get("skill_code", ""), 0.0
-            )
+            skill_code = skill.get("skill_code", "")
+            if self._outcome_tracker is not None:
+                # Dynamic prior: (win_rate - 0.5) × 2 maps [0,1] → [-1,+1]
+                win_rate = self._outcome_tracker.compute_internal_prior(skill_code)
+                internal_prior = (win_rate - 0.5) * 2.0
+            else:
+                internal_prior = self._internal_priors.get(skill_code, 0.0)
             # status_filter: 1.0 for stable, 0.5 for experimental
             maturity = skill.get("maturity", "stable")
             status_filter = 1.0 if maturity == "stable" else 0.5

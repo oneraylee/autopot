@@ -315,6 +315,15 @@ class KnowledgeRepository:
         self._outcomes.setdefault(technique_id, []).append(record)
         return deepcopy(record)
 
+    def list_outcomes_by_technique(self, technique_id: str) -> list[dict]:
+        return [deepcopy(o) for o in self._outcomes.get(technique_id, [])]
+
+    def list_all_outcomes(self) -> list[dict]:
+        result = []
+        for outcomes in self._outcomes.values():
+            result.extend(deepcopy(o) for o in outcomes)
+        return result
+
     # ── Planning & Retrieval ────────────────────
 
     def create_snapshot(self, *, planning_type: str, project_id: str,

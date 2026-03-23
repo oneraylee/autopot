@@ -20,12 +20,14 @@ class KnowledgeRoutes:
         retrieval_service: Any | None = None,
         conflict_service: Any | None = None,
         composer_service: Any | None = None,
+        outcome_tracker_service: Any | None = None,
     ) -> None:
         self._ingest = ingestion_service
         self._registry = registry_service
         self._retrieval = retrieval_service
         self._conflict = conflict_service
         self._composer = composer_service
+        self._outcome_tracker = outcome_tracker_service
 
     # ── POST /knowledge/sources ──────────────────────────────────────────────
 
@@ -230,6 +232,127 @@ class KnowledgeRoutes:
 
         try:
             return ok(_run())
+        except (KeyError, TypeError, ValueError) as exc:
+            return error(code="VALIDATION_ERROR", message=str(exc))
+
+    # ── POST /knowledge/outcomes ──────────────────────────────────────────────
+
+    def post_outcomes(self, payload: dict[str, Any]) -> dict[str, Any]:
+        def _run() -> dict[str, Any]:
+            if self._outcome_tracker is None:
+                raise ValueError("outcome_tracker_service not configured")
+            technique_id = payload.get("technique_id")
+            baseline_job_id = payload.get("baseline_job_id")
+            candidate_job_id = payload.get("candidate_job_id")
+            verdict = payload.get("verdict")
+            result_summary = payload.get("result_summary")
+            if not all([technique_id, baseline_job_id, candidate_job_id, verdict, result_summary]):
+                raise ValueError(
+                    "technique_id, baseline_job_id, candidate_job_id, verdict, result_summary are required"
+                )
+            # Validate technique exists
+            self._registry.get_skill(technique_id)
+            return self._outcome_tracker.record_outcome(
+                technique_id=technique_id,
+                project_id=payload.get("project_id", ""),
+                baseline_job_id=baseline_job_id,
+                candidate_job_id=candidate_job_id,
+                result_summary=result_summary,
+                verdict=verdict,
+                scenario_signature=payload.get("scenario_signature"),
+            )
+
+        try:
+            return ok(_run())
+        except RepositoryError as exc:
+            return error(code=exc.code, message=exc.message)
+        except (KeyError, TypeError, ValueError) as exc:
+            return error(code="VALIDATION_ERROR", message=str(exc))
+
+    # ── POST /datasets/versions/{id}/knowledge-plan ───────────────────────────
+
+    def post_dataset_knowledge_plan(
+        self, version_id: str, payload: dict[str, Any]
+    ) -> dict[str, Any]:
+        def _run() -> dict[str, Any]:
+            if self._composer is None:
+                raise ValueError("composer_service not configured")
+            ctx = self._composer.compose_planning_context(
+                dataset_report=payload.get("dataset_report", {}),
+                project_constraints=payload.get("project_constraints", {}),
+                project_id=payload.get("project_id", ""),
+                top_k=int(payload.get("top_k", 8)),
+                token_budget=payload.get("token_budget"),
+            )
+            return {
+                "snapshot_id": ctx["snapshot_id"],
+                "dataset_version_id": version_id,
+                "context": {
+                    "candidate_techniques": ctx["candidate_techniques"],
+                    "rejected_techniques": ctx["rejected_techniques"],
+                },
+            }
+
+        try:
+            return ok(_run())
+        except (KeyError, TypeError, ValueError) as exc:
+            return error(code="VALIDATION_ERROR", message=str(exc))
+
+    # ── POST /jobs/{id}/knowledge-diagnosis ───────────────────────────────────
+
+    def post_job_knowledge_diagnosis(
+        self, job_id: str, payload: dict[str, Any]
+    ) -> dict[str, Any]:
+        def _run() -> dict[str, Any]:
+            if self._composer is None:
+                raise ValueError("composer_service not configured")
+            ctx = self._composer.compose_diagnosis_context(
+                evidence_pack=payload.get("evidence_pack", {}),
+                project_constraints=payload.get("project_constraints", {}),
+                project_id=payload.get("project_id", ""),
+                baseline_job_id=job_id,
+                top_k=int(payload.get("top_k", 8)),
+                token_budget=payload.get("token_budget"),
+            )
+            return {
+                "snapshot_id": ctx["snapshot_id"],
+                "job_id": job_id,
+                "context": {
+                    "candidate_techniques": ctx["candidate_techniques"],
+                    "rejected_techniques": ctx["rejected_techniques"],
+                },
+            }
+
+        try:
+            return ok(_run())
+        except (KeyError, TypeError, ValueError) as exc:
+            return error(code="VALIDATION_ERROR", message=str(exc))
+
+    # ── POST /proposals/validate-with-knowledge ───────────────────────────────
+
+    def post_validate_with_knowledge(self, payload: dict[str, Any]) -> dict[str, Any]:
+        def _run() -> dict[str, Any]:
+            if self._conflict is None:
+                raise ValueError("conflict_service not configured")
+            techniques = payload.get("techniques", [])
+            if not techniques:
+                technique_ids = payload.get("technique_ids", [])
+                techniques = [{"technique_id": tid} for tid in technique_ids]
+            runtime_constraints = payload.get("runtime_constraints", {})
+            validation = self._conflict.validate_combination(
+                techniques=techniques,
+                constraints=runtime_constraints,
+            )
+            return {"validation": validation, "ok": validation["ok"]}
+
+        try:
+            result = _run()
+            if not result["ok"]:
+                return error(
+                    code="CONFLICT",
+                    message=f"resource budget exceeded: {result['validation'].get('violation')}",
+                )
+            return ok({"validation": result["validation"]})
         except (KeyError, TypeError, ValueError) as exc:
             return error(code="VALIDATION_ERROR", message=str(exc))
 

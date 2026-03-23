@@ -1,4 +1,4 @@
-"""RED tests for KnowledgeRetrievalService (Phase 3 Step 2)."""
+"""RED tests for KnowledgeRetrievalService (Phase 3 Step 2 + Phase 4 Step 2)."""
 import pytest
 from unittest.mock import MagicMock
 
@@ -232,3 +232,148 @@ def test_retrieval_log_written():
     log = repo._retrieval_logs[-1]
     assert "query_signature" in log
     assert "candidate_techniques" in log
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Phase 4 Step 2 – 内部经验加权集成
+# ══════════════════════════════════════════════════════════════════════════════
+
+def _make_tracker(repo, win_threshold=0.02, default_prior=0.5):
+    from services.skill_outcome_tracker_service import SkillOutcomeTrackerService
+    return SkillOutcomeTrackerService(
+        knowledge_repo=repo,
+        win_threshold=win_threshold,
+        default_prior=default_prior,
+    )
+
+
+def _make_service_with_tracker(skills=None, tracker=None, repo=None):
+    from services.knowledge_retrieval_service import KnowledgeRetrievalService
+    if repo is None:
+        repo = _make_repo()
+    if skills:
+        for sk in skills:
+            repo.create_skill(**sk)
+    svc = KnowledgeRetrievalService(knowledge_repo=repo, outcome_tracker=tracker)
+    return svc, repo
+
+
+def test_win_record_boosts_score():
+    """win 记录（win_rate = 1.0）使技能排序分数高于无历史的同等技能。"""
+    repo = _make_repo()
+    for code in ["WIN-001", "BASE-001"]:
+        repo.create_skill(**_skill_kwargs(code, f"skill_{code}", default_priority=3))
+
+    tracker = _make_tracker(repo)
+    # Record a win for WIN-001 skill
+    tracker.record_outcome(
+        technique_id="WIN-001",
+        project_id="proj",
+        baseline_job_id="j-001",
+        candidate_job_id="j-002",
+        result_summary={"kpi_diff": 0.05},
+        verdict="win",
+    )
+
+    svc, _ = _make_service_with_tracker(tracker=tracker, repo=repo)
+    result = svc.search({"task_type": "det"})
+    candidates = {c["skill_code"]: c["retrieval_score"] for c in result["candidates"]}
+    assert candidates["WIN-001"] > candidates["BASE-001"]
+
+
+def test_lose_record_lowers_score():
+    """lose 记录（win_rate = 0.0）使技能排序分数低于无历史的同等技能。"""
+    repo = _make_repo()
+    for code in ["LOSE-001", "BASE-001"]:
+        repo.create_skill(**_skill_kwargs(code, f"skill_{code}", default_priority=3))
+
+    tracker = _make_tracker(repo)
+    tracker.record_outcome(
+        technique_id="LOSE-001",
+        project_id="proj",
+        baseline_job_id="j-001",
+        candidate_job_id="j-002",
+        result_summary={"kpi_diff": -0.05},
+        verdict="lose",
+    )
+
+    svc, _ = _make_service_with_tracker(tracker=tracker, repo=repo)
+    result = svc.search({"task_type": "det"})
+    candidates = {c["skill_code"]: c["retrieval_score"] for c in result["candidates"]}
+    assert candidates["LOSE-001"] < candidates["BASE-001"]
+
+
+def test_unstable_record_no_change():
+    """unstable 记录不调整分数：与无历史技能分数相同。"""
+    repo = _make_repo()
+    for code in ["UNSTABLE-001", "BASE-001"]:
+        repo.create_skill(**_skill_kwargs(code, f"skill_{code}", default_priority=3))
+
+    tracker = _make_tracker(repo)
+    # Unstable: one win, one lose
+    tracker.record_outcome(
+        technique_id="UNSTABLE-001",
+        project_id="proj",
+        baseline_job_id="j-001",
+        candidate_job_id="j-002",
+        result_summary={"kpi_diff": 0.05},
+        verdict="unstable",
+    )
+
+    svc, _ = _make_service_with_tracker(tracker=tracker, repo=repo)
+    result = svc.search({"task_type": "det"})
+    candidates = {c["skill_code"]: c["retrieval_score"] for c in result["candidates"]}
+    # unstable outcome excluded from win_rate → same default prior → same score
+    assert candidates["UNSTABLE-001"] == pytest.approx(candidates["BASE-001"])
+
+
+def test_internal_prior_in_simplified_formula():
+    """S_internal 在简化公式中正确生效：
+    score = rule_match × (default_priority + S_internal) × status_filter
+    S_internal = (win_rate - 0.5) × 2
+    """
+    from services.knowledge_retrieval_service import compute_score
+    # win_rate = 1.0 → S_internal = 1.0
+    s_internal_win = (1.0 - 0.5) * 2
+    score_win = compute_score(
+        rule_match=1.0,
+        default_priority=3,
+        internal_prior=s_internal_win,
+        status_filter=1.0,
+    )
+    assert score_win == pytest.approx(4.0)
+
+    # win_rate = 0.0 → S_internal = -1.0
+    s_internal_lose = (0.0 - 0.5) * 2
+    score_lose = compute_score(
+        rule_match=1.0,
+        default_priority=3,
+        internal_prior=s_internal_lose,
+        status_filter=1.0,
+    )
+    assert score_lose == pytest.approx(2.0)
+
+    # win_rate = 0.5 (default) → S_internal = 0.0
+    s_internal_default = (0.5 - 0.5) * 2
+    score_default = compute_score(
+        rule_match=1.0,
+        default_priority=3,
+        internal_prior=s_internal_default,
+        status_filter=1.0,
+    )
+    assert score_default == pytest.approx(3.0)
+
+
+def test_no_outcome_uses_default_prior():
+    """无 outcome 时使用默认先验：S_internal = (0.5 - 0.5) × 2 = 0.0，分数不变。"""
+    repo = _make_repo()
+    repo.create_skill(**_skill_kwargs("SK-NEW", "new_skill", default_priority=3))
+
+    tracker = _make_tracker(repo, default_prior=0.5)
+    # No outcomes recorded for SK-NEW
+    svc, _ = _make_service_with_tracker(tracker=tracker, repo=repo)
+    result = svc.search({"task_type": "det"})
+    candidates = {c["skill_code"]: c["retrieval_score"] for c in result["candidates"]}
+
+    # Score should equal rule_match(1.0) × (default_priority(3) + S_internal(0.0)) × status(1.0) = 3.0
+    assert candidates["SK-NEW"] == pytest.approx(3.0)
