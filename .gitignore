@@ -51,6 +51,21 @@ npm-debug.log*
 yarn-error.log*
 .pnp/
 
+## Frontend (Next.js)
+# Next.js build output and cache
+frontend/.next/
+frontend/out/
+# TypeScript build info
+frontend/tsconfig.tsbuildinfo
+# pnpm lockfile (committed separately, workspace-level)
+# Environment overrides (local only)
+frontend/.env.local
+frontend/.env.*.local
+# Playwright test results and reports (keep playwright-report/ for CI artifacts)
+frontend/test-results/
+# Storybook output
+frontend/storybook-static/
+
 ## Docker
 docker-compose.override.yml
 docker-compose.prod.yml
