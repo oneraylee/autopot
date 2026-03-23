@@ -22,6 +22,7 @@ class AgentService:
         job_id: str = "",
         run_id: str = "",
         baseline_job_id: str = "",
+        skill_context: dict | None = None,
     ) -> dict:
         _ = evidence_pack
         if not isinstance(agent_output, dict):
@@ -54,6 +55,7 @@ class AgentService:
             "baseline_job_id": baseline_job_id,
             "status": "success",
             "created_at": _now(),
+            "skill_context_injected": skill_context is not None,
         }
 
     @staticmethod

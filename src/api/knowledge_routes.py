@@ -1,4 +1,4 @@
-"""Knowledge System API Routes – Source / Document / Technique endpoints."""
+"""Knowledge System API Routes – Source / Document / Technique / Retrieval endpoints."""
 from __future__ import annotations
 
 from typing import Any
@@ -17,9 +17,15 @@ class KnowledgeRoutes:
         *,
         ingestion_service: Any,
         registry_service: Any,
+        retrieval_service: Any | None = None,
+        conflict_service: Any | None = None,
+        composer_service: Any | None = None,
     ) -> None:
         self._ingest = ingestion_service
         self._registry = registry_service
+        self._retrieval = retrieval_service
+        self._conflict = conflict_service
+        self._composer = composer_service
 
     # ── POST /knowledge/sources ──────────────────────────────────────────────
 
@@ -136,3 +142,94 @@ class KnowledgeRoutes:
             return error(code=code, message=exc.message)
         except RepositoryError as exc:
             return error(code=exc.code, message=exc.message)
+
+    # ── POST /knowledge/retrieval/search ─────────────────────────────────────
+
+    def post_retrieval_search(self, payload: dict[str, Any]) -> dict[str, Any]:
+        def _run() -> dict[str, Any]:
+            if self._retrieval is None:
+                raise ValueError("retrieval_service not configured")
+            query_sig = payload.get("query_signature")
+            if not isinstance(query_sig, dict):
+                raise ValueError("query_signature is required")
+            top_k = int(payload.get("limit", 20))
+            result = self._retrieval.search(query_sig, top_k=top_k)
+            return {
+                "candidates": result["candidates"],
+                "total": result.get("total_before_truncation", len(result["candidates"])),
+            }
+
+        try:
+            return ok(_run())
+        except (KeyError, TypeError, ValueError) as exc:
+            return error(code="VALIDATION_ERROR", message=str(exc))
+
+    # ── POST /knowledge/retrieval/resolve-conflicts ───────────────────────────
+
+    def post_resolve_conflicts(self, payload: dict[str, Any]) -> dict[str, Any]:
+        def _run() -> dict[str, Any]:
+            if self._conflict is None:
+                raise ValueError("conflict_service not configured")
+            technique_ids = payload.get("technique_ids", [])
+            if not isinstance(technique_ids, list):
+                raise ValueError("technique_ids must be a list")
+            runtime_constraints = payload.get("runtime_constraints", {})
+            # Convert ids to minimal technique dicts for the service
+            techniques = [{"technique_id": tid} for tid in technique_ids]
+            result = self._conflict.resolve(
+                techniques, runtime_constraints=runtime_constraints
+            )
+            return result
+
+        try:
+            return ok(_run())
+        except (KeyError, TypeError, ValueError) as exc:
+            return error(code="VALIDATION_ERROR", message=str(exc))
+
+    # ── POST /knowledge/retrieval/compose-context ─────────────────────────────
+
+    def post_compose_context(self, payload: dict[str, Any]) -> dict[str, Any]:
+        def _run() -> dict[str, Any]:
+            if self._composer is None:
+                raise ValueError("composer_service not configured")
+            planning_type = payload.get("planning_type", "dataset_plan")
+            project_id = payload.get("project_id", "")
+            dataset_report = payload.get("dataset_report", {})
+            project_constraints = payload.get("project_constraints", {})
+            top_k = int(payload.get("top_k", 8))
+            token_budget = payload.get("token_budget")
+
+            if planning_type == "dataset_plan":
+                ctx = self._composer.compose_planning_context(
+                    dataset_report=dataset_report,
+                    project_constraints=project_constraints,
+                    project_id=project_id,
+                    top_k=top_k,
+                    token_budget=token_budget,
+                )
+            else:
+                evidence_pack = payload.get("evidence_pack", {})
+                baseline_job_id = payload.get("baseline_job_id", "")
+                ctx = self._composer.compose_diagnosis_context(
+                    evidence_pack=evidence_pack,
+                    project_constraints=project_constraints,
+                    project_id=project_id,
+                    baseline_job_id=baseline_job_id,
+                    top_k=top_k,
+                    token_budget=token_budget,
+                )
+
+            return {
+                "snapshot_id": ctx["snapshot_id"],
+                "context": {
+                    "candidate_techniques": ctx["candidate_techniques"],
+                    "rejected_techniques": ctx["rejected_techniques"],
+                    "conflict_summary": ctx["conflict_summary"],
+                },
+            }
+
+        try:
+            return ok(_run())
+        except (KeyError, TypeError, ValueError) as exc:
+            return error(code="VALIDATION_ERROR", message=str(exc))
+
