@@ -10,13 +10,16 @@ class JobService:
         self._gpu_locks: dict[str, str] = {}
         self._job_to_gpu: dict[str, str] = {}
 
-    def create_and_queue_job(self, *, job_id: str, task_type: str, dataset_version_id: str) -> dict:
-        dataset_id, version = self._parse_dataset_version_id(dataset_version_id)
-        version_snapshot = self._dataset_repository.get_dataset_version(dataset_id=dataset_id, version=version)
-        if version_snapshot.get("frozen") is not True:
-            raise RepositoryError("DATA_INVALID", "dataset version must be frozen")
+    def create_job_draft(self, *, job_id: str, task_type: str, dataset_version_id: str) -> dict:
+        self._ensure_frozen_dataset_version(dataset_version_id)
+        return self._job_repository.create_job(
+            job_id=job_id,
+            task_type=task_type,
+            dataset_version_id=dataset_version_id,
+        )
 
-        self._job_repository.create_job(
+    def create_and_queue_job(self, *, job_id: str, task_type: str, dataset_version_id: str) -> dict:
+        self.create_job_draft(
             job_id=job_id,
             task_type=task_type,
             dataset_version_id=dataset_version_id,
@@ -24,6 +27,10 @@ class JobService:
         return self._job_repository.transition_status(job_id, to_status="queued")
 
     def start_job(self, *, job_id: str, gpu_id: str) -> dict:
+        job = self._job_repository.get_job(job_id)
+        if job["status"] == "created":
+            self._job_repository.transition_status(job_id, to_status="queued")
+
         holder = self._gpu_locks.get(gpu_id)
         if holder is not None and holder != job_id:
             raise RepositoryError("RESOURCE_LOCKED", f"gpu {gpu_id} already in use")
@@ -70,3 +77,9 @@ class JobService:
             return dataset_id, int(version_token)
         except ValueError as exc:
             raise RepositoryError("DATA_INVALID", "invalid dataset_version_id") from exc
+
+    def _ensure_frozen_dataset_version(self, dataset_version_id: str) -> None:
+        dataset_id, version = self._parse_dataset_version_id(dataset_version_id)
+        version_snapshot = self._dataset_repository.get_dataset_version(dataset_id=dataset_id, version=version)
+        if version_snapshot.get("frozen") is not True:
+            raise RepositoryError("DATA_INVALID", "dataset version must be frozen")

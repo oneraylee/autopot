@@ -57,6 +57,10 @@ class JobRepository:
             raise RepositoryError("NOT_FOUND", "job not found")
         return deepcopy(job)
 
+    def list_jobs(self) -> list[dict]:
+        jobs = sorted(self._jobs.values(), key=lambda j: j["created_at"], reverse=True)
+        return deepcopy(jobs)
+
     def transition_status(self, job_id: str, *, to_status: str) -> dict:
         job = self._jobs.get(job_id)
         if job is None:

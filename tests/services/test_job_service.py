@@ -43,6 +43,22 @@ def test_valid_state_transition_with_lock_and_release():
     assert service.current_locks() == {}
 
 
+def test_start_job_allows_created_draft_to_run_after_user_confirmation():
+    from repositories.dataset_repository import DatasetRepository
+    from repositories.job_repository import JobRepository
+    from services.job_service import JobService
+
+    dataset_repository = DatasetRepository()
+    _build_frozen_dataset(dataset_repository)
+    service = JobService(job_repository=JobRepository(), dataset_repository=dataset_repository)
+
+    draft = service.create_job_draft(job_id="job-1", task_type="training", dataset_version_id="ds-1:v1")
+    running = service.start_job(job_id="job-1", gpu_id="0")
+
+    assert draft["status"] == "created"
+    assert running["status"] == "running"
+
+
 def test_invalid_state_transition_blocked():
     from repositories.dataset_repository import DatasetRepository
     from repositories.errors import RepositoryError

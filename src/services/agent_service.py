@@ -1,5 +1,11 @@
+from datetime import UTC, datetime
+
 from common.schema_validators import validate_payload
 from repositories.errors import RepositoryError
+
+
+def _now() -> str:
+    return datetime.now(UTC).isoformat(timespec="seconds")
 
 
 class AgentService:
@@ -13,6 +19,9 @@ class AgentService:
         agent_output: dict,
         baseline: dict | None = None,
         user_confirmed: bool = False,
+        job_id: str = "",
+        run_id: str = "",
+        baseline_job_id: str = "",
     ) -> dict:
         _ = evidence_pack
         if not isinstance(agent_output, dict):
@@ -40,6 +49,11 @@ class AgentService:
             "analysis_report": analysis_report,
             "next_experiments": next_experiments,
             "job_creation_triggered": triggered,
+            "job_id": job_id,
+            "run_id": run_id,
+            "baseline_job_id": baseline_job_id,
+            "status": "success",
+            "created_at": _now(),
         }
 
     @staticmethod

@@ -66,6 +66,17 @@ class DatasetRepository:
     def get_dataset_version(self, *, dataset_id: str, version: int) -> dict:
         return deepcopy(self._get_version(dataset_id, version))
 
+    def list_datasets(self) -> list[dict]:
+        result = []
+        for dataset in self._datasets.values():
+            versions = [
+                v["version"] for k, v in self._versions.items() if k[0] == dataset["dataset_id"]
+            ]
+            item = deepcopy(dataset)
+            item["latest_version"] = max(versions) if versions else None
+            result.append(item)
+        return sorted(result, key=lambda d: d["created_at"], reverse=True)
+
     def _get_dataset(self, dataset_id: str) -> dict:
         dataset = self._datasets.get(dataset_id)
         if dataset is None:

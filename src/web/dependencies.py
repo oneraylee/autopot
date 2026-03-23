@@ -36,11 +36,21 @@ class AppContainer:
             artifact_repository=self.artifact_repository,
         )
 
-        created_jobs: list[dict] = []
+        proposal_job_counter = 0
 
-        def _create_training_job(candidate: dict) -> dict:
-            created_jobs.append(candidate)
-            return {"job_id": f"job-{len(created_jobs)}"}
+        def _create_training_job(request: dict) -> dict:
+            nonlocal proposal_job_counter
+
+            baseline_job_id = str(request.get("baseline_job_id", ""))
+            baseline_job = self.job_repository.get_job(baseline_job_id)
+            proposal_job_counter += 1
+            job_id = f"proposal-job-{proposal_job_counter}"
+            draft = self.job_service.create_job_draft(
+                job_id=job_id,
+                task_type=baseline_job["task_type"],
+                dataset_version_id=baseline_job["dataset_version_id"],
+            )
+            return {"job_id": draft["job_id"], "status": draft["status"]}
 
         self.proposal_routes = ProposalRoutes(create_training_job=_create_training_job)
         self.export_routes = ExportRoutes(

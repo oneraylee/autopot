@@ -88,3 +88,35 @@ def test_empty_scene_coverage_returns_empty_collection():
 
     assert response["ok"] is True
     assert response["data"]["items"] == []
+
+
+# ── Phase 1 Step 1: 数据集列表查询接口测试基线 ──
+
+
+def test_list_datasets_returns_empty_collection_when_no_datasets():
+    from api.dataset_routes import DatasetRoutes
+
+    dataset_repo = DatasetRepository()
+    scene_repo = SceneLabelRepository()
+    routes = DatasetRoutes(dataset_repository=dataset_repo, scene_label_repository=scene_repo)
+
+    response = routes.list_datasets()
+
+    assert response["ok"] is True
+    assert response["data"]["items"] == []
+
+
+def test_list_datasets_returns_latest_version_projection():
+    routes = _build_routes()
+    routes.import_dataset_version("ds-1", {"version": 1, "manifest_uri": "s3://bucket/v1.json"})
+    routes.import_dataset_version("ds-1", {"version": 2, "manifest_uri": "s3://bucket/v2.json"})
+
+    response = routes.list_datasets()
+
+    assert response["ok"] is True
+    items = response["data"]["items"]
+    assert len(items) == 1
+    item = items[0]
+    required_fields = {"dataset_id", "name", "latest_version", "created_at"}
+    assert required_fields.issubset(set(item.keys()))
+    assert item["latest_version"] == 2

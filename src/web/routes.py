@@ -34,6 +34,10 @@ def build_router(container) -> APIRouter:
     def put_project_kpi_config(project_id: str, payload: dict[str, Any]) -> JSONResponse:
         return _to_http(container.project_routes.put_project_kpi_config(project_id, payload))
 
+    @router.get("/datasets")
+    def list_datasets() -> JSONResponse:
+        return _to_http(container.dataset_routes.list_datasets())
+
     @router.post("/datasets/{dataset_id}/versions/import")
     def import_dataset_version(dataset_id: str, payload: dict[str, Any]) -> JSONResponse:
         return _to_http(container.dataset_routes.import_dataset_version(dataset_id, payload))
@@ -53,6 +57,10 @@ def build_router(container) -> APIRouter:
         dimensions: list[str] = Query(default=[]),
     ) -> JSONResponse:
         return _to_http(container.dataset_routes.get_scene_coverage(dataset_version_id, dimensions))
+
+    @router.get("/jobs")
+    def list_jobs() -> JSONResponse:
+        return _to_http(container.job_routes.list_jobs())
 
     @router.post("/jobs")
     def create_job(payload: dict[str, Any]) -> JSONResponse:

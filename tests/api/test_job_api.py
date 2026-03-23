@@ -99,6 +99,59 @@ def test_job_state_conflict_error_mapping():
     assert conflict["error"]["code"] == "RESOURCE_LOCKED"
 
 
+# ── Phase 1 Step 1: 列表查询接口测试基线 ──
+
+
+def test_list_jobs_returns_empty_collection_when_no_jobs():
+    routes = _build_routes()
+
+    response = routes.list_jobs()
+
+    assert response["ok"] is True
+    assert response["data"]["items"] == []
+
+
+def test_list_jobs_returns_required_fields_for_frontend_table():
+    routes = _build_routes()
+    routes.create_job(
+        {
+            "job_id": "job-1",
+            "task_type": "training",
+            "dataset_version_id": "ds-1:v1",
+            "resources": {"gpu_count": 1},
+        }
+    )
+
+    response = routes.list_jobs()
+
+    assert response["ok"] is True
+    items = response["data"]["items"]
+    assert len(items) == 1
+    item = items[0]
+    required_fields = {"job_id", "task_type", "status", "created_at", "dataset_version_id"}
+    assert required_fields.issubset(set(item.keys()))
+
+
+def test_list_jobs_preserves_stable_order():
+    routes = _build_routes()
+    for i in range(3):
+        routes.create_job(
+            {
+                "job_id": f"job-{i}",
+                "task_type": "training",
+                "dataset_version_id": "ds-1:v1",
+                "resources": {"gpu_count": 1},
+            }
+        )
+
+    response = routes.list_jobs()
+
+    items = response["data"]["items"]
+    assert len(items) == 3
+    created_times = [item["created_at"] for item in items]
+    assert created_times == sorted(created_times, reverse=True)
+
+
 def test_logs_pagination_and_empty_metrics_semantics():
     routes = _build_routes()
     routes.create_job(

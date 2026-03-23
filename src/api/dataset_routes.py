@@ -8,6 +8,9 @@ class DatasetRoutes:
         self._dataset_repository = dataset_repository
         self._scene_label_repository = scene_label_repository
 
+    def list_datasets(self) -> dict[str, Any]:
+        return run_with_error_mapping(lambda: {"items": self._dataset_repository.list_datasets()})
+
     def import_dataset_version(self, dataset_id: str, payload: dict[str, Any]) -> dict[str, Any]:
         def _import() -> dict[str, Any]:
             return self._dataset_repository.create_dataset_version(

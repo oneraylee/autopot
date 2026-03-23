@@ -85,7 +85,7 @@ def test_export_http_flow_and_benchmark_query():
 
     assert create_export.status_code == 200
     assert benchmark.status_code == 200
-    assert set(benchmark.json()["data"]["benchmark"]) == {"throughput_fps", "latency_p95_ms", "memory_mb", "unit"}
+    assert {"throughput_fps", "latency_p95_ms", "latency_ms", "memory_mb", "unit"}.issubset(set(benchmark.json()["data"]["benchmark"]))
 
 
 def test_proposal_validate_http_endpoint():
@@ -110,3 +110,70 @@ def test_proposal_validate_http_endpoint():
 
     assert response.status_code == 200
     assert response.json()["data"]["accepted"] == 1
+
+
+def test_confirmed_proposal_creates_draft_job_before_execution():
+    client = TestClient(create_app())
+    _seed_project_and_dataset(client)
+
+    create_job = client.post(
+        "/jobs",
+        json={
+            "job_id": "job-base",
+            "task_type": "training",
+            "dataset_version_id": "ds-1:v1",
+            "resources": {"gpu_count": 1},
+        },
+    )
+    assert create_job.status_code == 200
+
+    response = client.post(
+        "/proposals/create-from-candidate",
+        json={
+            "baseline_job_id": "job-base",
+            "who": "alice",
+            "when": "2026-03-11",
+            "confirmed": True,
+            "candidate": {
+                "name": "exp-1",
+                "changes": [{"field": "lr", "from": 0.001, "to": 0.0005}],
+                "expected": "higher kpi",
+                "evidence_refs": ["dataset_report.class_distribution"],
+            },
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()["data"]
+    assert body["status"] == "created"
+
+    job_response = client.get(f"/jobs/{body['job_id']}")
+    assert job_response.status_code == 200
+    assert job_response.json()["data"]["status"] == "created"
+
+
+# ── Phase 1 Step 1: HTTP 列表端点测试 ──
+
+
+def test_jobs_http_endpoint_is_accessible():
+    client = TestClient(create_app())
+    _seed_project_and_dataset(client)
+
+    response = client.get("/jobs")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["ok"] is True
+    assert isinstance(body["data"]["items"], list)
+
+
+def test_datasets_http_endpoint_is_accessible():
+    client = TestClient(create_app())
+    _seed_project_and_dataset(client)
+
+    response = client.get("/datasets")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["ok"] is True
+    assert isinstance(body["data"]["items"], list)

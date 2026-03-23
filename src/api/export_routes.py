@@ -1,7 +1,12 @@
+from datetime import UTC, datetime
 from typing import Any
 
 from api._response import error, run_with_error_mapping
 from services.export_service import ExportService
+
+
+def _now() -> str:
+    return datetime.now(UTC).isoformat(timespec="seconds")
 
 
 class ExportRoutes:
@@ -36,6 +41,7 @@ class ExportRoutes:
                 "run_id": run_id,
                 "backend": backend,
                 "status": status,
+                "created_at": _now(),
                 "result": result,
             }
             return {"export_id": export_id}
@@ -57,13 +63,15 @@ class ExportRoutes:
         def _benchmark() -> dict[str, Any]:
             if export_id not in self._exports:
                 raise ValueError("export not found")
+            benchmark = self._service.build_deploy_benchmark(
+                throughput_fps=120.0,
+                latency_p95_ms=19.5,
+                memory_mb=2048,
+            )
+            benchmark["latency_ms"] = benchmark["latency_p95_ms"]
             return {
                 "export_id": export_id,
-                "benchmark": self._service.build_deploy_benchmark(
-                    throughput_fps=120.0,
-                    latency_p95_ms=19.5,
-                    memory_mb=2048,
-                ),
+                "benchmark": benchmark,
             }
 
         response = run_with_error_mapping(_benchmark)

@@ -24,6 +24,9 @@ class JobRoutes:
 
         return run_with_error_mapping(_create)
 
+    def list_jobs(self) -> dict[str, Any]:
+        return run_with_error_mapping(lambda: {"items": self._job_repository.list_jobs()})
+
     def get_job(self, job_id: str) -> dict[str, Any]:
         return run_with_error_mapping(lambda: self._job_repository.get_job(job_id))
 
