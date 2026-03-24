@@ -48,7 +48,47 @@ pnpm test
 
 # E2E 冒烟测试 (Playwright, 需全栈启动)
 pnpm e2e
+
+# Phase 7 单测
+pnpm test:phase7:unit
+
+# Phase 7 E2E
+pnpm test:phase7:e2e
+
+# Phase 7 E2E（终端输出，不生成 playwright-report 目录）
+pnpm test:phase7:e2e:noreport
+
+# Phase 7 全量验证
+pnpm verify:phase7
+
+# Phase 7 全量验证（终端输出，不生成 playwright-report 目录）
+pnpm verify:phase7:noreport
 ```
+
+## Phase 7 验证入口
+
+Phase 7 覆盖 Gateway 页面、知识系统 E2E 冒烟、以及 data-testid 集成补全。
+
+```bash
+# Gateway Vitest
+pnpm test:phase7:unit
+
+# Phase 7 Playwright
+pnpm test:phase7:e2e
+
+# 如只需要终端结果且不希望再次生成 playwright-report 目录，使用这个命令
+pnpm test:phase7:e2e:noreport
+
+# 一次性跑完 lint / typecheck / unit / e2e
+pnpm verify:phase7
+
+# 一次性跑完所有 Phase 7 校验，并避免生成 playwright-report 目录
+pnpm verify:phase7:noreport
+```
+
+说明：
+- `test:phase7:e2e` 使用 Playwright 默认 HTML reporter，适合本地查看详细报告。
+- `test:phase7:e2e:noreport` 改为终端 line reporter，避免生成 `playwright-report/` 目录。
 
 ## 项目结构
 

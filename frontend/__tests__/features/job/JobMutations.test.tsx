@@ -133,7 +133,7 @@ describe("JobDetailPage integration", () => {
           data: { ...createdJob, status: "running" },
         }),
     });
-    globalThis.fetch = fetchSpy;
+    globalThis.fetch = fetchSpy as unknown as typeof fetch;
   });
 
   afterEach(() => {

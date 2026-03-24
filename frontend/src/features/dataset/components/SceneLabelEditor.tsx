@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { upsertSceneLabels } from "@/lib/api/dataset";
+import type { SceneLabel } from "@/lib/api/dataset";
 
 interface SceneLabelEditorProps {
   datasetVersionId: string;
@@ -17,7 +18,7 @@ export function SceneLabelEditor({ datasetVersionId }: SceneLabelEditorProps) {
   const [error, setError] = useState("");
 
   const mutation = useMutation({
-    mutationFn: (labels: Array<Record<string, string>>) =>
+    mutationFn: (labels: SceneLabel[]) =>
       upsertSceneLabels(datasetVersionId, labels),
   });
 
@@ -28,14 +29,14 @@ export function SceneLabelEditor({ datasetVersionId }: SceneLabelEditorProps) {
       setError("必填");
       return;
     }
-    const label: Record<string, string> = {
-      image_id: imageId,
+    const label: SceneLabel = {
+      frame_id: imageId,
       time_of_day: timeOfDay,
       weather,
-      environment,
+      road_type: environment,
     };
     if (weather === "other") {
-      label.weather_other_text = weatherOtherText;
+      label.other_text = weatherOtherText;
     }
     mutation.mutate([label]);
   };
